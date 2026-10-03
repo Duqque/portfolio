@@ -5,13 +5,13 @@ import { OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import gsap from "gsap";
 import { cameraApi } from "@/engine/cameraApi";
-import { WORLD } from "@/data/infrastructure";
+import { WORLD, ISLAND_BOUNDS } from "@/data/infrastructure";
 import { story } from "@/data/buildings";
 import { smoothstep } from "@/engine/math";
 import * as THREE from "three";
 import { buildings } from "@/data/buildings";
 import { Building } from "./Building";
-import { Terrain, Pond, Rails, Trees, Lamps, Beacons } from "./World";
+import { Terrain, Ocean, Pond, Rails, Trees, Lamps, Beacons } from "./World";
 import { Roads } from "./Roads";
 import { Trace } from "./Trace";
 import { Trains, Crowd, Cars } from "./Life";
@@ -24,31 +24,44 @@ import { buildT } from "@/engine/construction";
 const DIR = new THREE.Vector3(1, 0.86, 1.08).normalize();
 const LOOK = new THREE.Vector3(4, -1.5, 2.5);
 const LOOK_PORTRAIT = new THREE.Vector3(9, -1.5, 3);
+// vue d'ensemble de l'île (intro / rewind) : presque à la verticale, comme une carte de monde ouvert
+const DIR_ISLAND = new THREE.Vector3(0.38, 1.35, 0.72).normalize();
+const LOOK_ISLAND = new THREE.Vector3(-6, 0, 2);
 
 function Rig() {
   const { camera, size, gl } = useThree();
   const controls = useRef<OrbitControlsImpl>(null);
   const home = useRef({ pos: new THREE.Vector3(), look: new THREE.Vector3(), dist: 150 });
 
-  const place = useCallback((smooth: boolean) => {
+  const mode = useRef<"island" | "city">("island");
+  const place = useCallback((smooth: boolean, m: "island" | "city" = mode.current) => {
+    mode.current = m;
     const cam = camera as THREE.PerspectiveCamera;
     const aspect = size.width / size.height;
     const portrait = aspect < 1;
-    const needH = portrait ? (118 / aspect) * 0.72 : Math.max(70, 118 / aspect);
-    const dist = needH / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
-    const look = (portrait ? LOOK_PORTRAIT : LOOK).clone();
-    const pos = look.clone().addScaledVector(DIR, dist);
+    let look: THREE.Vector3, dir: THREE.Vector3, dist: number;
+    if (m === "island") {
+      const needH = portrait ? (210 / aspect) * 0.7 : Math.max(125, 215 / aspect);
+      dist = needH / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
+      look = LOOK_ISLAND.clone(); dir = DIR_ISLAND;
+    } else {
+      const needH = portrait ? (118 / aspect) * 0.72 : Math.max(70, 118 / aspect);
+      dist = needH / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
+      look = (portrait ? LOOK_PORTRAIT : LOOK).clone(); dir = DIR;
+    }
+    const pos = look.clone().addScaledVector(dir, dist);
     home.current = { pos, look, dist };
     const c = controls.current;
     if (smooth && c) {
-      gsap.to(cam.position, { x: pos.x, y: pos.y, z: pos.z, duration: 1.2, ease: "power2.inOut", onUpdate: () => c.update() });
-      gsap.to(c.target, { x: look.x, y: look.y, z: look.z, duration: 1.2, ease: "power2.inOut" });
+      gsap.killTweensOf(cam.position); gsap.killTweensOf(c.target);
+      gsap.to(cam.position, { x: pos.x, y: pos.y, z: pos.z, duration: 2.4, ease: "power3.inOut", onUpdate: () => c.update() });
+      gsap.to(c.target, { x: look.x, y: look.y, z: look.z, duration: 2.4, ease: "power3.inOut" });
     } else {
       cam.position.copy(pos);
       if (c) c.target.copy(look);
       cam.lookAt(look);
     }
-    cam.near = 4; cam.far = 1400;
+    cam.near = 4; cam.far = 2600;
     cam.updateProjectionMatrix();
   }, [camera, size.width, size.height]);
 
@@ -60,6 +73,16 @@ function Rig() {
   const moved = useRef(false);
   useEffect(() => { if (!moved.current) place(false); }, [place]);
 
+  // la caméra quitte la vue d'ensemble de l'île dès que le temps commence à s'écouler
+  const phaseSeen = useRef("");
+  useFrame(() => {
+    const ph = getState().phase;
+    if (ph === phaseSeen.current) return;
+    phaseSeen.current = ph;
+    const wanted = ph === "scroll" || ph === "void" ? "city" : "island";
+    if (wanted !== mode.current) place(true, wanted);
+  });
+
   useEffect(() => {
     cameraApi.recenter = () => place(true);
     cameraApi.zoom = (f: number) => {
@@ -67,7 +90,7 @@ function Rig() {
       if (!c) return;
       moved.current = true; lastTouch.current = clock.time;
       const off = camera.position.clone().sub(c.target);
-      const d = THREE.MathUtils.clamp(off.length() * f, 38, home.current.dist * 1.25);
+      const d = THREE.MathUtils.clamp(off.length() * f, 30, mode.current === "island" ? 520 : home.current.dist * 1.25);
       camera.position.copy(c.target).add(off.setLength(d));
       c.update();
     };
@@ -88,7 +111,7 @@ function Rig() {
     if (!c) return;
     // ── FOCUS : quand un bâtiment se construit, la caméra se rapproche de lui (fonction de progress), puis revient
     const st = getState();
-    if (st.phase === "scroll" && !st.openId && clock.time - lastTouch.current > 3.5) {
+    if (st.phase === "scroll" && !st.openId && clock.time - lastTouch.current > 3.5 && !gsap.isTweening(camera.position)) {
       const p = clock.progress;
       let best: (typeof story)[number] | null = null, w = 0;
       for (const b of story) {
@@ -106,8 +129,8 @@ function Rig() {
       camera.position.copy(c.target).addScaledVector(dir, d);
     }
     // borne la cible au diorama
-    c.target.x = THREE.MathUtils.clamp(c.target.x, WORLD.minX, WORLD.maxX);
-    c.target.z = THREE.MathUtils.clamp(c.target.z, WORLD.minZ, WORLD.maxZ);
+    c.target.x = THREE.MathUtils.clamp(c.target.x, ISLAND_BOUNDS.minX, ISLAND_BOUNDS.maxX);
+    c.target.z = THREE.MathUtils.clamp(c.target.z, ISLAND_BOUNDS.minZ, ISLAND_BOUNDS.maxZ);
     c.target.y = THREE.MathUtils.clamp(c.target.y, -3, 12);
   });
 
@@ -131,20 +154,36 @@ function Rig() {
   );
 }
 
-/** Projette les ancres des bâtiments en coordonnées écran (pour les cartes HTML). */
+/** Projette les repères en coordonnées écran et empile les labels pour qu'ils ne se chevauchent pas. */
 function Projector() {
   const { camera, size } = useThree();
   const v = useMemo(() => new THREE.Vector3(), []);
+  const byId = useMemo(() => Object.fromEntries(buildings.map((b) => [b.id, b])), []);
   useFrame(() => {
     const done = getState().completed;
+    const items: { id: string; x: number; y: number; w: number; el: HTMLElement }[] = [];
     for (const id of done) {
-      const b = buildings.find((x) => x.id === id);
+      const b = byId[id];
       const el = document.getElementById(`card-${id}`);
       if (!b || !el) continue;
-      v.set(b.position[0], b.size[2] + 1.4, b.position[2]).project(camera);
-      el.style.setProperty("--lift", `${b.cardLift ?? 0}px`);
-      el.style.setProperty("--dx", `${b.cardDx ?? 0}px`);
-      el.style.transform = `translate3d(${((v.x + 1) / 2) * size.width}px, ${((1 - v.y) / 2) * size.height}px, 0)`;
+      v.set(b.position[0], 0.3, b.position[2]).project(camera);
+      const x = ((v.x + 1) / 2) * size.width, y = ((1 - v.y) / 2) * size.height;
+      el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      items.push({ id, x, y, w: 64 + b.name.length * 9.5, el });
+    }
+    // du plus proche (bas de l'écran) au plus loin : chaque label monte jusqu'à trouver une place libre
+    items.sort((a, b) => b.y - a.y);
+    const placed: [number, number, number, number][] = [];
+    for (const it of items) {
+      let lift = 30;
+      for (let k = 0; k < 14; k++) {
+        const r: [number, number, number, number] = [it.x - it.w / 2, it.y - lift - 28, it.x + it.w / 2, it.y - lift];
+        if (!placed.some((p) => r[0] < p[2] && r[2] > p[0] && r[1] < p[3] && r[3] > p[1])) { placed.push(r); break; }
+        lift += 30;
+        if (k === 13) placed.push(r);
+      }
+      it.el.style.setProperty("--lift", `${lift}px`);
+      it.el.style.setProperty("--dx", "0px");
     }
   });
   return null;
@@ -167,7 +206,7 @@ export default function CityCanvas() {
     <Canvas
       shadows
       dpr={low ? [1, 1.25] : [1, 1.75]}
-      camera={{ fov: 22, near: 4, far: 1400 }}
+      camera={{ fov: 22, near: 4, far: 2600 }}
       gl={{ antialias: !low, alpha: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.05; gl.shadowMap.type = THREE.PCFSoftShadowMap; gl.setClearColor(0x000000, 0); }}
       style={{ position: "fixed", inset: 0 }}
@@ -176,6 +215,7 @@ export default function CityCanvas() {
       <Rig />
       <Lighting />
       <Terrain />
+      <Ocean />
       <Pond />
       <Rails />
       <Roads />

@@ -30,3 +30,20 @@ export function keyframes(keys: [number, number][], x: number) {
   }
   return keys[keys.length - 1][1];
 }
+
+function hash2(ix: number, iz: number) {
+  let h = (ix * 374761393 + iz * 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+/** bruit de valeur lissé 0..1 */
+export function vnoise(x: number, z: number) {
+  const ix = Math.floor(x), iz = Math.floor(z), fx = x - ix, fz = z - iz;
+  const u = fx * fx * (3 - 2 * fx), v = fz * fz * (3 - 2 * fz);
+  return lerp(lerp(hash2(ix, iz), hash2(ix + 1, iz), u), lerp(hash2(ix, iz + 1), hash2(ix + 1, iz + 1), u), v);
+}
+export function fbm(x: number, z: number, oct = 5) {
+  let a = 0.5, f = 1, s = 0, n = 0;
+  for (let i = 0; i < oct; i++) { s += a * vnoise(x * f, z * f); n += a; f *= 2.05; a *= 0.5; }
+  return s / n;
+}

@@ -156,26 +156,49 @@ function Hud() {
   const sound = useUI((s) => s.sound);
   const subtitles = useUI((s) => s.subtitles);
   const textMode = useUI((s) => s.textMode);
+  const [open, setOpen] = useState(false);
   const p = useChapterLabel();
   return (
     <header className="hud">
+      <div className="round-btns">
+        <button className="round" aria-pressed={sound} aria-label={sound ? "Couper le son" : "Activer le son"} onClick={() => { cityAudio.start(); cityAudio.setEnabled(!sound); setState({ sound: !sound }); }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />{sound ? <><path d="M16.5 8.5a5 5 0 0 1 0 7" /><path d="M19 6a8.5 8.5 0 0 1 0 12" /></> : <path d="M17 9l5 6M22 9l-5 6" />}</svg>
+        </button>
+        <button className="round" aria-expanded={open} aria-label="Réglages" onClick={() => setOpen(!open)}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" /></svg>
+        </button>
+        {open && (
+          <div className="settings" role="menu">
+            <button role="menuitemcheckbox" aria-checked={voice} onClick={() => { setState({ voice: !voice }); if (voice) stopSpeech(); else cityAudio.start(); }}>VOIX {voice ? "ON" : "OFF"}</button>
+            <button role="menuitemcheckbox" aria-checked={subtitles} onClick={() => setState({ subtitles: !subtitles })}>SOUS-TITRES {subtitles ? "ON" : "OFF"}</button>
+            <button role="menuitem" onClick={() => setState({ textMode: true })}>VERSION TEXTE</button>
+          </div>
+        )}
+      </div>
       <div className="brand">
         <strong>DUQUENNE CITY</strong>
         <span>A LIFE UNDER CONSTRUCTION</span>
         {phase === "scroll" && p && <em>{p}</em>}
       </div>
-      <nav className="toggles" aria-label="Réglages">
-        <button aria-pressed={voice} onClick={() => { setState({ voice: !voice }); if (voice) stopSpeech(); else cityAudio.start(); }}>VOIX {voice ? "ON" : "OFF"}</button>
-        <button aria-pressed={sound} onClick={() => { cityAudio.start(); cityAudio.setEnabled(!sound); setState({ sound: !sound }); }}>SON {sound ? "ON" : "OFF"}</button>
-        <button aria-pressed={subtitles} onClick={() => setState({ subtitles: !subtitles })}>SOUS-TITRES</button>
-        <button aria-pressed={textMode} onClick={() => setState({ textMode: true })}>TEXTE</button>
-      </nav>
       <nav className="camera" aria-label="Caméra">
         <button onClick={() => cameraApi.zoom(0.8)} aria-label="Zoom avant">+</button>
         <button onClick={() => cameraApi.zoom(1.25)} aria-label="Zoom arrière">−</button>
         <button onClick={() => cameraApi.recenter()} aria-label="Recentrer la vue">⌖</button>
       </nav>
+      <MapHint />
     </header>
+  );
+}
+/** Instruction façon tutoriel de jeu, en bas à droite, + « continuer à défiler » discret en bas au centre. */
+function MapHint() {
+  const phase = useUI((s) => s.phase);
+  const openId = useUI((s) => s.openId);
+  const on = phase === "intro" && !openId;
+  return (
+    <div className={`maphint ${on ? "on" : ""}`} aria-hidden={!on}>
+      <span className="l1">CLIQUEZ SUR UN REPÈRE</span>
+      <span className="l2">POUR LIRE LE DÉTAIL</span>
+    </div>
   );
 }
 function useChapterLabel() {
@@ -233,7 +256,7 @@ function ScrollHint() {
     window.addEventListener("scroll", f, { passive: true });
     return () => window.removeEventListener("scroll", f);
   }, []);
-  return <div className={`hint ${show ? "on" : ""}`} aria-hidden={!show}>Faites défiler pour avancer le temps <b>↓</b></div>;
+  return <div className={`hint ${show ? "on" : ""}`} aria-hidden={!show}>CONTINUEZ À DÉFILER</div>;
 }
 
 /* ───────────────────────── Sous-titres ───────────────────────── */

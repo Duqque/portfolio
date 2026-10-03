@@ -15,9 +15,9 @@ export function Cards() {
   return (
     <div className="cards">
       {withCard.map((b) => {
-        const show = phase === "scroll" && !openId && completed.includes(b.id);
+        const show = (phase === "scroll" || phase === "intro") && !openId && completed.includes(b.id);
         return (
-          <div key={b.id} id={`card-${b.id}`} className="card-anchor">
+          <div key={b.id} id={`card-${b.id}`} className={`card-anchor ${show ? "on" : ""}`}>
             <button
               className={`card ${show ? "on" : ""}`}
               tabIndex={show ? 0 : -1}

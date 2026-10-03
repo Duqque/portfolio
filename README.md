@@ -66,3 +66,8 @@ Global Dojo Network (lignes déjà en data), photos dans les panneaux (`panel.ph
 - **Focus** : quand un bâtiment se construit, la caméra se rapproche de lui puis revient (se met en pause 3,5 s après une manipulation).
 - **Rythme** : `src/engine/timeMap.ts` ralentit le scroll pendant les constructions (≈ 4800 vh au total).
 - **Références** : les photos fournies sont dans `public/refs/`. Une réplique *exacte* demande des modèles GLB (Meshy) : champ `model` de `BuildingDef` (chargeur GLB pas encore codé).
+
+## Style « carte de monde ouvert »
+Vue d'ensemble d'une **île** (relief procédural, montagnes à l'ouest, ville au centre-est, plages, océan profond) avec labels noirs à pictogrammes,
+repères bleus pulsants, boutons ronds en haut à gauche (son / réglages), instruction « CLIQUEZ SUR UN REPÈRE… » et « CONTINUEZ À DÉFILER ».
+La caméra survole l'île à l'intro puis descend sur la ville quand le temps commence à s'écouler. Les labels s'empilent automatiquement pour ne pas se chevaucher.

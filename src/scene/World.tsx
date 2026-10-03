@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { POND, WORLD, RAIL_Z, makeLamps, streetBuiltX, makeTrees } from "@/data/infrastructure";
 import { clock, getState } from "@/engine/timeline";
 import { sky } from "@/engine/daynight";
-import { rng, smoothstep } from "@/engine/math";
+import { rng, smoothstep, fbm } from "@/engine/math";
 import { glowSprite } from "./textures";
 import { buildings } from "@/data/buildings";
 import { buildT } from "@/engine/construction";
@@ -13,43 +13,77 @@ import { buildT } from "@/engine/construction";
 const W = WORLD.maxX - WORLD.minX, D = WORLD.maxZ - WORLD.minZ;
 const CX = (WORLD.maxX + WORLD.minX) / 2, CZ = (WORLD.maxZ + WORLD.minZ) / 2;
 
-/** Le diorama : dalle de terrain (herbe, terre, roche), étang, et ombre portée sur la « table ». */
+/* ───── L'île : relief procédural, montagnes à l'ouest, plateau urbain au centre-est, plages, océan profond ───── */
+export const ISLAND = { cx: -8, cz: 0, rx: 98, rz: 62 };
+const smooth = (a: number, b: number, x: number) => smoothstep(a, b, x);
+export function heightAt(x: number, z: number): number {
+  const dx = (x - ISLAND.cx) / ISLAND.rx, dz = (z - ISLAND.cz) / ISLAND.rz;
+  const ang = Math.atan2(dz, dx);
+  const wob = 1 + 0.12 * Math.sin(ang * 3 + 1.3) + 0.07 * Math.sin(ang * 7 + 0.4) + (fbm(x * 0.05, z * 0.05, 3) - 0.5) * 0.2;
+  const d = Math.hypot(dx, dz) / wob;
+  const land = 1 - smooth(0.74, 1.0, d);
+  const mount = smooth(-44, -88, x) + smooth(-30, -58, z) * 0.55 + smooth(60, 95, z) * 0.15;
+  let h = (fbm(x * 0.045, z * 0.045) - 0.38) * 17 * (0.35 + mount * 3.1);
+  h = Math.max(h, 0.15) * land - smooth(0.86, 1.04, d) * 7;
+  // plateau urbain parfaitement plat (la ville repose sur y = 0)
+  const out = Math.max(Math.abs(x - 4) - 52, Math.abs(z - 2.5) - 31, 0);
+  return THREE.MathUtils.lerp(h, 0, 1 - smooth(0, 16, out));
+}
+
 export function Terrain() {
+  const low = getState().low;
   const geo = useMemo(() => {
-    const g = new THREE.PlaneGeometry(W, D, Math.round(W / 2.2), Math.round(D / 2.2));
+    const W = 262, D = 172, sx = low ? 130 : 262, sz = low ? 86 : 172;
+    const g = new THREE.PlaneGeometry(W, D, sx, sz);
     g.rotateX(-Math.PI / 2);
+    g.translate(ISLAND.cx, 0, ISLAND.cz);
     const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) pos.setY(i, heightAt(pos.getX(i), pos.getZ(i)));
+    g.computeVertexNormals();
+    const nor = g.attributes.normal;
     const col = new Float32Array(pos.count * 3);
-    const r = rng(8);
-    const base = new THREE.Color("#627a4a"), alt = new THREE.Color("#73895a"), dry = new THREE.Color("#7d7c58");
     const c = new THREE.Color();
+    const sand = new THREE.Color("#a29468"), grass = new THREE.Color("#3b4c2e"), grass2 = new THREE.Color("#52633a"), rock = new THREE.Color("#5c5446"), high = new THREE.Color("#7b766b"), shallow = new THREE.Color("#4a8a9c"), deep = new THREE.Color("#0b3a74");
     for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), z = pos.getZ(i);
-      const n = Math.sin(x * 0.17) * Math.cos(z * 0.13) + Math.sin(x * 0.05 + z * 0.09) * 0.8 + (r() - 0.5) * 0.5;
-      c.copy(base).lerp(alt, THREE.MathUtils.clamp(n * 0.5 + 0.4, 0, 1)).lerp(dry, THREE.MathUtils.clamp(n * 0.3 - 0.1, 0, 0.5));
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), ny = nor.getY(i);
+      const n = fbm(x * 0.2, z * 0.2, 3), n2 = fbm(x * 0.9, z * 0.9, 2);
+      const dd = Math.hypot((x - ISLAND.cx) / ISLAND.rx, (z - ISLAND.cz) / ISLAND.rz);
+      c.copy(grass).lerp(grass2, n);
+      c.lerp(rock, smooth(0.9, 0.7, ny) + smooth(5, 14, y) * 0.5);
+      c.lerp(high, smooth(16, 30, y));
+      c.multiplyScalar(0.8 + n2 * 0.4);
+      c.lerp(sand, smooth(1.1, 0.2, y) * smooth(0.6, 0.74, dd) * (0.85 + n2 * 0.3));
+      c.lerp(shallow, smooth(0.0, -0.9, y));
+      c.lerp(deep, smooth(-1.0, -5, y));
       col.set([c.r, c.g, c.b], i * 3);
     }
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-    return g.toNonIndexed();
-  }, []);
+    return g;
+  }, [low]);
   return (
-    <group position={[CX, 0, CZ]}>
-      <mesh geometry={geo} position={[0, 0, 0]} receiveShadow>
-        <meshStandardMaterial vertexColors flatShading roughness={1} />
-      </mesh>
-      <mesh position={[0, -1.05, 0]} receiveShadow castShadow>
-        <boxGeometry args={[W, 1.8, D]} />
-        <meshStandardMaterial color="#8a6a4e" roughness={1} />
-      </mesh>
-      <mesh position={[0, -2.8, 0]} receiveShadow>
-        <boxGeometry args={[W - 0.8, 2.2, D - 0.8]} />
-        <meshStandardMaterial color="#5a5a68" roughness={1} />
-      </mesh>
-      <mesh position={[0, -4.6, 0]}>
-        <boxGeometry args={[W - 3, 1.6, D - 3]} />
-        <meshStandardMaterial color="#3a3a46" roughness={1} />
-      </mesh>
-    </group>
+    <mesh geometry={geo} receiveShadow>
+      <meshStandardMaterial vertexColors roughness={1} />
+    </mesh>
+  );
+}
+
+/** Océan bleu profond, texturé, légèrement translucide (les hauts-fonds transparaissent). */
+export function Ocean() {
+  const tex = useMemo(() => {
+    const c = document.createElement("canvas"); c.width = c.height = 256;
+    const g = c.getContext("2d")!;
+    g.fillStyle = "#1457a6"; g.fillRect(0, 0, 256, 256);
+    const r = rng(5);
+    for (let i = 0; i < 1800; i++) { g.fillStyle = `rgba(${r() > 0.5 ? "120,190,255" : "5,30,80"},${0.04 + r() * 0.1})`; g.fillRect(r() * 256, r() * 256, 2 + r() * 14, 1 + r() * 2); }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(70, 56); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+    return t;
+  }, []);
+  useFrame(() => { tex.offset.set(clock.time * 0.0012, clock.time * 0.0007); });
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[ISLAND.cx, -0.6, ISLAND.cz]} renderOrder={1}>
+      <planeGeometry args={[2400, 1800]} />
+      <meshStandardMaterial map={tex} color="#9db8d8" transparent opacity={0.9} roughness={0.35} metalness={0.15} depthWrite={false} />
+    </mesh>
   );
 }
 

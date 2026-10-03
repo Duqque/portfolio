@@ -168,3 +168,34 @@ canvas:active { cursor: grabbing; }
 .p-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255, 255, 255, 0.08); }
 .p-bar i { display: block; height: 100%; background: var(--accent); }
 .prologue .skip { z-index: 2; }
+
+/* ───────── Style « carte de monde ouvert » ───────── */
+.hud { justify-content: space-between; }
+.round-btns { position: relative; display: flex; gap: 10px; pointer-events: auto; }
+.round { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(12, 16, 30, 0.55); border: 1px solid rgba(255, 255, 255, 0.22); backdrop-filter: blur(10px); color: #fff; }
+.round:hover { background: rgba(40, 60, 100, 0.7); }
+.settings { position: absolute; top: 54px; left: 0; display: grid; gap: 4px; min-width: 190px; padding: 8px; background: rgba(8, 10, 18, 0.9); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 8px; backdrop-filter: blur(12px); }
+.settings button { text-align: left; background: transparent; border: 0; padding: 9px 10px; font-size: 10px; letter-spacing: 0.24em; border-radius: 4px; }
+.settings button:hover { background: rgba(255, 255, 255, 0.08); }
+.brand { text-align: right; }
+.toggles { display: none !important; }
+.camera { top: 50%; bottom: auto !important; transform: translateY(-50%); }
+
+.card { border-radius: 3px !important; background: rgba(6, 8, 14, 0.88) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important; padding: 7px 12px 7px 10px !important; }
+.card i { color: #fff !important; }
+.card b { font-size: 10.5px !important; letter-spacing: 0.3em !important; font-weight: 700; }
+.card::after { background: rgba(255, 255, 255, 0.35) !important; }
+.card-anchor::before { content: ""; position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: #2f9ae8; box-shadow: 0 0 0 5px rgba(80, 170, 235, 0.28), 0 0 14px rgba(47, 154, 232, 0.8); opacity: 0; transform: scale(0.4); transition: opacity 0.6s, transform 0.6s; pointer-events: none; }
+.card-anchor.on::before { opacity: 1; transform: none; animation: ping 2.4s infinite; }
+@keyframes ping { 50% { box-shadow: 0 0 0 11px rgba(80, 170, 235, 0.1), 0 0 14px rgba(47, 154, 232, 0.8); } }
+
+.maphint { position: fixed; right: 36px; bottom: 36px; z-index: 12; display: grid; text-align: right; font-family: "Arial Rounded MT Bold", "Nunito", "Avenir Next", "Helvetica Neue", sans-serif; font-weight: 900; font-size: clamp(22px, 2.8vw, 42px); line-height: 1.06; letter-spacing: 0.01em; opacity: 0; transform: translateY(10px); transition: opacity 1s, transform 1s; pointer-events: none; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5); }
+.maphint.on { opacity: 1; transform: none; }
+.maphint .l1 { color: #cfe6ff; }
+.maphint .l2 { color: #ff5fb0; }
+.hint { left: 50% !important; transform: translateX(-50%); bottom: 4vh !important; font-size: 10px !important; letter-spacing: 0.5em !important; opacity: 0; color: rgba(255, 255, 255, 0.75); }
+.hint b { display: none; }
+.intro { justify-content: flex-start !important; text-align: left !important; }
+.intro .lines { justify-items: start !important; }
+.intro p { text-align: left; }
+@media (max-width: 820px) { .camera { top: auto; bottom: 120px !important; transform: none; } .maphint { right: 16px; bottom: 120px; font-size: 20px; } }

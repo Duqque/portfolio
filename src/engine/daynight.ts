@@ -58,9 +58,9 @@ export function updateSky(p: number) {
   const am = Math.PI * clamp((u - 0.64) / 0.36, 0, 1);
   const em = Math.sin(am);
   sky.moonDir.set(-Math.cos(am) * 55, Math.max(em, 0.1) * 50 + 4, -30);
-  sky.moonInt = u > 0.64 ? 1.5 * smoothstep(0.0, 0.2, em) : 0;
+  sky.moonInt = u > 0.64 ? 2.3 * smoothstep(0.0, 0.2, em) : 0;
 
   sky.hemiSky.copy(sky.top).lerp(new THREE.Color("#ffffff"), 0.35 * sky.day).lerp(NIGHT_SKY, 0.8 * sky.night);
   sky.hemiGround.set("#6b6a5a").lerp(new THREE.Color("#3a4272"), sky.night);
-  sky.hemiInt = lerp(0.7, 0.8, sky.night);
+  sky.hemiInt = lerp(0.7, 1.15, sky.night);
 }

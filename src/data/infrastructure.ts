@@ -4,6 +4,7 @@ import { rng, keyframes } from "@/engine/math";
 
 /* ───────── Monde ───────── */
 export const WORLD = { minX: -44, maxX: 52, minZ: -26, maxZ: 31 };
+export const ISLAND_BOUNDS = { minX: -112, maxX: 96, minZ: -66, maxZ: 66 };
 export const RAIL_Z = [-17.2, -19.8];
 export const STREET_Z = 10;
 
