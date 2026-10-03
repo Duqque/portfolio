@@ -1,6 +1,6 @@
 import type { StageKey } from "@/engine/construction";
 
-export type Shape = "box" | "cyl" | "cone" | "pyr" | "sphere" | "prism" | "dome";
+export type Shape = "box" | "oval" | "cyl" | "cone" | "pyr" | "sphere" | "prism" | "dome";
 export type MatKind = "std" | "window" | "glass" | "sign" | "emit";
 
 export interface Part {

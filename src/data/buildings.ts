@@ -35,7 +35,7 @@ export const chapterOne: BuildingDef[] = [
   },
   {
     id: "gare", cardLift: 0, cardDx: 40, name: "La Gare", chapter: "foundation", category: "transport", archetype: "station",
-    position: [1, 0, -9.5], size: [11, 4.6, 5.4], buildStart: 0.078, buildEnd: 0.1, importance: 5, country: "france",
+    position: [1, 0, -9.5], size: [17, 4.2, 5.4], buildStart: 0.078, buildEnd: 0.1, importance: 5, country: "france",
     description: "Le premier grand départ. Nord → Paris.", connections: ["mjm-webstart"],
     anchor: [0, -13.4], sign: "GARE", card: { tagline: "Le départ" },
     panel: {
@@ -48,9 +48,18 @@ export const chapterOne: BuildingDef[] = [
     },
   },
   {
-    id: "paris", name: "Paris", chapter: "foundation", category: "infra", archetype: "landmark",
-    position: [17, 0, -8.5], size: [3, 3, 8], buildStart: 0.112, buildEnd: 0.13, importance: 2, country: "france",
-    description: "Paris est symboliquement accessible.", connections: ["mjm-webstart"], anchor: [17, -10.6], card: false,
+    id: "paris", name: "Tour Eiffel", chapter: "foundation", category: "infra", archetype: "eiffel",
+    position: [17, 0, -8.5], size: [5, 5, 11], buildStart: 0.112, buildEnd: 0.13, importance: 3, country: "france",
+    description: "Paris est symboliquement accessible.", connections: ["mjm-webstart"], anchor: [17, -10.6],
+    card: { tagline: "Paris" }, cardLift: 0, cardDx: 0,
+    panel: { kicker: "Paris", period: "L'arrivée", place: "Paris", narration: ["Paris est symboliquement accessible : la ville change de direction."], gives: "", tags: ["Paris", "Nouvelle étape"] },
+  },
+  {
+    id: "arc-triomphe", name: "Arc de Triomphe", chapter: "foundation", category: "infra", archetype: "arc",
+    position: [23, 0, -12.6], size: [6, 4, 5], buildStart: 0.124, buildEnd: 0.14, importance: 2, country: "france",
+    description: "Paris, un repère de plus sur la route.", connections: [], anchor: [23, -9.6],
+    card: { tagline: "Paris" }, cardLift: 0, cardDx: 0,
+    panel: { kicker: "Paris", period: "L'arrivée", place: "Paris", narration: ["Un repère de plus : on est bien à Paris."], gives: "", tags: ["Paris"] },
   },
   {
     id: "mjm-webstart", cardLift: 20, cardDx: -60, name: "MJM / Webstart", chapter: "foundation", category: "design", archetype: "design",
@@ -125,14 +134,14 @@ export const chapterTwo: BuildingDef[] = [
     card: { tagline: "L'activité de coach" }, cardLift: 20, cardDx: -30, panel: later("Une véritable activité de coach"),
   },
   {
-    id: "puc", name: "Paris Université Club", chapter: "formation", category: "sport", archetype: "cfa",
-    position: [-21, 0, 18], rotationY: Math.PI, size: [7, 5, 3.8], buildStart: 0.232, buildEnd: 0.25, importance: 3, country: "france",
-    description: "Un nouveau club.", connections: ["jccmm"], anchor: [-21, 14.2], sign: "PUC",
+    id: "puc", name: "Paris Université Club", chapter: "formation", category: "sport", archetype: "stadium",
+    position: [-23, 0, 23], rotationY: Math.PI, size: [14, 11, 5], buildStart: 0.232, buildEnd: 0.254, importance: 4, country: "france",
+    description: "Un nouveau club — représenté par le stade Charlety.", connections: ["jccmm"], anchor: [-23, 15.8], sign: "PUC · CHARLETY",
     card: { tagline: "Un nouveau club" }, cardLift: 14, cardDx: -60, panel: later("De nouveaux clubs"),
   },
   {
-    id: "jccmm", name: "JCCMM", chapter: "formation", category: "judo", archetype: "dojo",
-    position: [-35, 0, 4.5], size: [6.6, 5, 3.4], buildStart: 0.255, buildEnd: 0.274, importance: 3, country: "france", tint: "#e3b9a0",
+    id: "jccmm", name: "JCCMM", chapter: "formation", category: "judo", archetype: "square",
+    position: [-35, 0, 3.4], size: [7, 7, 6.2], buildStart: 0.255, buildEnd: 0.274, importance: 3, country: "france",
     description: "Un club de plus dans la ville.", connections: ["grand-dome"], anchor: [-35, 8.0], sign: "JCCMM",
     card: { tagline: "Un club de plus" }, cardLift: 46, cardDx: -10, panel: later("De nouveaux clubs"),
   },
@@ -155,9 +164,9 @@ export const teasers: BuildingDef[] = [
   T({ id: "gdn-2", name: "Dojo — Lisbonne", archetype: "dojo", position: [-12, 0, -8], size: [6.6, 5, 3.4], buildStart: 0.72, buildEnd: 0.8, sign: "DOJO", tint: "#d9a066" }),
   T({ id: "gdn-3", name: "Dojo — Tokyo", archetype: "dojo", position: [5, 0, 25], size: [6.6, 5, 3.4], buildStart: 0.84, buildEnd: 0.9, sign: "DOJO", tint: "#c76f6f" }),
   T({ id: "gdn-4", name: "Dojo — Prague", archetype: "dojo", position: [28, 0, 28], size: [6.6, 5, 3.4], buildStart: 0.86, buildEnd: 0.92, sign: "DOJO", tint: "#7fa3c7" }),
-  T({ id: "gdn-5", name: "Dojo — Almaty", archetype: "dojo", position: [-30, 0, 22], size: [6.6, 5, 3.4], buildStart: 0.88, buildEnd: 0.94, sign: "DOJO", tint: "#8fbf8a" }),
+  T({ id: "gdn-5", name: "Dojo — Almaty", archetype: "dojo", position: [-40, 0, 31], size: [6.6, 5, 3.4], buildStart: 0.88, buildEnd: 0.94, sign: "DOJO", tint: "#8fbf8a" }),
   T({ id: "rokudan", name: "Rokudan", archetype: "site", position: [-3, 0, 21], size: [7, 6, 6], buildStart: 0.62, buildEnd: 0.9, status: "construction" }),
-  T({ id: "jenyz", name: "Jenyz France", archetype: "site", position: [-40, 0, 24], size: [6, 6, 6], buildStart: 0.7, buildEnd: 0.92, status: "construction" }),
+  T({ id: "jenyz", name: "Jenyz France", archetype: "site", position: [-44, 0, 19], size: [6, 6, 6], buildStart: 0.7, buildEnd: 0.92, status: "construction" }),
   T({ id: "innovation-lab", name: "Sport Innovation Lab", archetype: "block", position: [12, 0, 23], size: [7, 6, 7], buildStart: 0.6, buildEnd: 0.78, tint: "#6aa4d8", sign: "LAB" }),
 ];
 
@@ -165,7 +174,7 @@ function scatterHouses(): BuildingDef[] {
   const r = rng(77);
   const spots: [number, number][] = [
     [-37, 6], [-36, -4], [-24, -23], [-20, -12], [-5, -22.5], [10, -22.5], [27, -22.5], [38, -14],
-    [-38, 15], [-14, 28], [-30, 27], [10, 28], [46, 28], [47, 12], [-34, 28], [20, 28],
+    [-38, 15], [-4, 31], [-45, 8], [10, 28], [46, 28], [47, 12], [-34, 28], [20, 28],
   ];
   return spots.map(([x, z], i) => {
     const w = 3.4 + r() * 2.2, d = 3 + r() * 1.8, h = 2.4 + r() * 3.2;

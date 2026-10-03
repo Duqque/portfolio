@@ -2,7 +2,7 @@ export type ChapterId = "foundation" | "formation" | "construction" | "internati
 export type Category = "judo" | "etudes" | "transport" | "design" | "sport" | "federation" | "coach" | "business" | "innovation" | "infra";
 export type Archetype =
   | "dojo" | "school" | "station" | "design" | "cfa" | "federation" | "dojoParis"
-  | "arena" | "tower" | "block" | "house" | "site" | "landmark";
+  | "square" | "stadium" | "arena" | "eiffel" | "arc" | "tower" | "block" | "house" | "site" | "landmark";
 
 export interface PanelContent {
   kicker: string;          // « La première pierre »

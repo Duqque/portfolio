@@ -6,6 +6,7 @@ function make(shape: Shape): THREE.BufferGeometry {
   switch (shape) {
     case "box": return new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
     case "cyl": return new THREE.CylinderGeometry(0.5, 0.5, 1, 12).translate(0, 0.5, 0);
+    case "oval": return new THREE.CylinderGeometry(0.5, 0.5, 1, 40).translate(0, 0.5, 0);
     case "cone": return new THREE.ConeGeometry(0.5, 1, 8).translate(0, 0.5, 0);
     case "pyr": return new THREE.ConeGeometry(Math.SQRT1_2, 1, 4).rotateY(Math.PI / 4).translate(0, 0.5, 0);
     case "sphere": return new THREE.SphereGeometry(0.5, 10, 8).translate(0, 0.5, 0);

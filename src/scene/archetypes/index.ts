@@ -99,47 +99,63 @@ const school: Gen = (def) => {
   return P;
 };
 
-/* ───────────────────────── GARE (façade de pierre, grande verrière, halle vitrée) ───────────────────────── */
+/* ───────────────────────── GARE (d'après la Gare du Nord) : façade de pierre, grande baie en arc, tours à statues, halles vitrées ───────────────────────── */
 const station: Gen = (def) => {
   const [w, d, h] = def.size;
   const P: Part[] = [];
-  const stone = "#ffffff";
-  P.push(box(0, 0, 0, w + 2, 0.18, d + 1.2, "#b9b3a6", "foundation"));
-  // quai (le long de la voie) + bordure
-  P.push(box(0, 0, -4.1, 18, 0.2, 4.2, "#a9a69c", "foundation"));
-  P.push(box(0, 0.2, -2.1, 18, 0.03, 0.12, "#e8d44a", "foundation"));
-  // ailes
-  const wing = (x: number) => {
-    P.push(box(x, 0.18, 0, 3.3, 3.0, d, stone, "walls", { tex: "stone", texRep: [2, 1.5] }));
-    P.push(prism(x, 3.18, 0, 3.5, 0.9, d + 0.3, "#7c8794", "roof"));
-    P.push(...windowGrid("front", 3.3, d, 1.1, 1, 3, 0.55, 1.3, 0, "windows", "window", "#d3e4f1").map((p) => ({ ...p, pos: [p.pos[0] + x, p.pos[1], p.pos[2]] as [number, number, number] })));
-    P.push(...windowGrid("front", 3.3, d, 2.3, 1, 3, 0.45, 0.5, 0, "windows", "window", "#d3e4f1").map((p) => ({ ...p, pos: [p.pos[0] + x, p.pos[1], p.pos[2]] as [number, number, number] })));
-  };
-  wing(-3.9); wing(3.9);
-  // pavillon central, plus haut, grande baie
-  P.push(box(0, 0.18, 0.3, 4.6, h - 0.6, d - 0.6, stone, "walls", { tex: "stone", texRep: [2.6, 2.4] }));
-  P.push(box(0, 1.0, d / 2 - 0.25, 2.8, 2.7, 0.1, "#cfe1ee", "windows", { mat: "glass" }));
-  for (let i = -2; i <= 2; i++) P.push(box(i * 0.55, 1.0, d / 2 - 0.2, 0.06, 2.7, 0.08, "#8a7a62", "windows"));
-  P.push(box(0, 3.75, d / 2 - 0.2, 0.62, 0.62, 0.08, "#ffffff", "windows", { mat: "sign", sign: "@clock" }));
-  P.push(box(0, h - 0.55, 0.3, 5.0, 0.22, d - 0.3, "#b9a07c", "roof")); // corniche
-  P.push(prism(0, h - 0.33, 0.3, 5.0, 0.8, d - 0.3, "#6f7a87", "roof"));
-  // pavillons latéraux
-  for (const x of [-6.2, 6.2]) P.push(box(x, 0.18, 0.2, 1.8, 3.5, d - 0.4, stone, "walls", { tex: "stone", texRep: [1, 1.8] }), box(x, 3.68, 0.2, 2.0, 0.18, d - 0.2, "#b9a07c", "roof"));
-  // statues sur la corniche
-  for (const x of [-6.2, -2.4, 2.4, 6.2]) P.push(cyl(x, 3.86, d / 2 - 0.3, 0.3, 0.55, "#cbb58f", "props"), sphere(x, 4.41, d / 2 - 0.3, 0.2, "#cbb58f", "props"));
-  P.push(box(0, 2.9, d / 2 + 0.1, 3.0, 0.4, 0.06, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "GARE" }));
-  // halle vitrée : trois nefs à verrière + poteaux
-  for (const x of [-3.7, 0, 3.7]) {
-    P.push(prism(x, 3.2, -6.2, 3.6, 1.2, 8, "#a8c4d6", "roof", { mat: "glass" }));
-    P.push(box(x - 1.75, 0.2, -6.2, 0.14, 3.0, 0.14, "#4b5260", "structure"), box(x + 1.75, 0.2, -6.2, 0.14, 3.0, 0.14, "#4b5260", "structure"));
-    P.push(box(x - 1.75, 0.2, -9.7, 0.14, 3.0, 0.14, "#4b5260", "structure"), box(x + 1.75, 0.2, -9.7, 0.14, 3.0, 0.14, "#4b5260", "structure"));
-    P.push(box(x - 1.75, 0.2, -2.8, 0.14, 3.0, 0.14, "#4b5260", "structure"), box(x + 1.75, 0.2, -2.8, 0.14, 3.0, 0.14, "#4b5260", "structure"));
+  const stone = "#ffffff", zinc = "#6f7a87", band = "#bfa57f";
+  const X = (b: Part, dx: number): Part => ({ ...b, pos: [b.pos[0] + dx, b.pos[1], b.pos[2]] as [number, number, number] });
+  P.push(box(0, 0, -1.5, w + 2.4, 0.18, d + 3.4, "#b9b3a6", "foundation"));
+  // quais le long des voies
+  P.push(box(0, 0, -4.1, 19, 0.2, 4.0, "#a9a69c", "foundation"));
+  P.push(box(0, 0.2, -2.15, 19, 0.03, 0.12, "#e8d44a", "foundation"));
+  const fz = d / 2;
+  // ── pavillon central : grande baie en arc + horloge
+  P.push(box(0, 0.18, 0, 4.8, h, d, stone, "walls", { tex: "stone", texRep: [2.4, 2.2] }));
+  P.push(box(0, 0.5, fz + 0.03, 4.3, 4.3, 0.06, stone, "windows", { tex: "grandarch", texRep: [1, 1] }));
+  P.push(box(0, h + 0.18, 0, 5.3, 0.3, d + 0.3, band, "roof"));
+  P.push(prism(0, h + 0.48, 0, 5.1, 0.9, d + 0.1, zinc, "roof"));
+  P.push(box(0, h - 0.7, fz + 0.05, 2.8, 0.38, 0.08, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "GARE DU NORD" }));
+  // ── tours latérales du pavillon (statues au sommet)
+  for (const sx of [-1, 1]) {
+    P.push(box(sx * 3.15, 0.18, 0.05, 1.5, h + 0.7, d - 0.1, stone, "walls", { tex: "stone", texRep: [0.9, 2.4] }));
+    P.push(box(sx * 3.15, h + 0.88, 0.05, 1.8, 0.3, d + 0.2, band, "roof"));
+    P.push(cyl(sx * 3.15, h + 1.18, fz - 0.55, 0.34, 0.8, "#cbb58f", "props"), sphere(sx * 3.15, h + 1.98, fz - 0.55, 0.24, "#cbb58f", "props"));
   }
-  // vie : voyageurs, bancs, lampadaires de quai
-  [[-4, -3.3, "#3d4c73"], [-2.6, -4.2, "#d85a5a"], [-1.2, -3.5, "#2f3340"], [0.6, -4.4, "#c9a24a"], [2.4, -3.6, "#8a6bd1"], [4.4, -4.1, "#4a8f6a"], [6.0, -3.4, "#e8e8ea"]].forEach(([x, z, c]) =>
+  // ── pavillons à arcs (de part et d'autre) et ailes basses à colonnes
+  for (const sx of [-1, 1]) {
+    P.push(box(sx * 5.4, 0.18, 0, 3.0, h - 1.0, d, stone, "walls", { tex: "stone", texRep: [1.8, 1.8] }));
+    P.push(box(sx * 5.4, 0.35, fz + 0.03, 2.7, 3.6, 0.06, stone, "windows", { tex: "archwall", texRep: [1, 1] }));
+    P.push(box(sx * 5.4, h - 0.82, 0, 3.3, 0.26, d + 0.3, band, "roof"));
+    P.push(prism(sx * 5.4, h - 0.56, 0, 3.2, 0.9, d + 0.1, zinc, "roof"));
+    // aile basse
+    P.push(box(sx * 7.65, 0.18, 0, 2.6, 3.2, d, stone, "walls", { tex: "stone", texRep: [1.6, 1.6] }));
+    P.push(box(sx * 7.65, 0.35, fz + 0.03, 2.4, 2.7, 0.06, stone, "windows", { tex: "archwall", texRep: [1, 0.9] }));
+    P.push(box(sx * 7.65, 3.38, 0, 2.9, 0.22, d + 0.3, band, "roof"));
+    P.push(prism(sx * 7.65, 3.6, 0, 2.8, 0.8, d + 0.1, zinc, "roof"));
+    for (let i = 0; i < 4; i++) P.push(cyl(sx * 7.65 - 1.0 + i * 0.66, 0.18, fz + 0.18, 0.2, 2.6, "#d8c9a6", "structure"));
+    P.push(cyl(sx * 5.4 - 1.0, h - 0.4, fz - 0.4, 0.26, 0.5, "#cbb58f", "props"), sphere(sx * 5.4 - 1.0, h + 0.1, fz - 0.4, 0.2, "#cbb58f", "props"));
+    P.push(cyl(sx * 5.4 + 1.0, h - 0.4, fz - 0.4, 0.26, 0.5, "#cbb58f", "props"), sphere(sx * 5.4 + 1.0, h + 0.1, fz - 0.4, 0.2, "#cbb58f", "props"));
+  }
+  // ── halles vitrées : trois nefs gabled de longueurs différentes, charpente d'acier
+  const steel = "#4b5260";
+  [[-5, 11.5], [0, 13], [5, 10]].forEach(([x, len]) => {
+    const z0 = -d / 2 - len / 2 + 0.2;
+    P.push(prism(x, 3.1, z0, 4.6, 1.5, len, "#ffffff", "roof", { mat: "glass", tex: undefined }));
+    P.push(prism(x, 3.12, z0, 4.62, 1.52, len, "#8fa5b8", "roof", { mat: "glass" }));
+    for (const sx of [-2.3, 2.3]) {
+      P.push(box(x + sx, 0.18, z0 - len / 2 + 0.1, 0.12, 3.0, 0.12, steel, "structure"), box(x + sx, 0.18, z0 + len / 2 - 0.1, 0.12, 3.0, 0.12, steel, "structure"));
+      for (let k = 0; k < 5; k++) P.push(box(x + sx, 0.18, z0 - len / 2 + 1.2 + k * ((len - 2.4) / 4), 0.1, 3.0, 0.1, steel, "structure"));
+      P.push(box(x + sx, 3.0, z0, 0.1, 0.1, len, steel, "structure"));
+    }
+    P.push(box(x, 4.55, z0, 0.12, 0.1, len, "#2f3440", "roof"));
+  });
+  // ── vie : voyageurs sur le quai, bancs, lampadaires
+  [[-4, -3.3, "#3d4c73"], [-2.6, -4.2, "#d85a5a"], [-1.2, -3.5, "#2f3340"], [0.6, -4.4, "#c9a24a"], [2.4, -3.6, "#8a6bd1"], [4.4, -4.1, "#4a8f6a"], [6.0, -3.4, "#e8e8ea"], [-6.5, -4.0, "#e0457b"]].forEach(([x, z, c]) =>
     P.push(...person(x as number, 0.2, z as number, c as string, { s: 1 })));
   for (const x of [-5.5, 5.5]) P.push(box(x, 0.2, -2.8, 1.2, 0.26, 0.35, "#6b5a45", "props"));
-  P.push(box(0, 0.18, d / 2 + 1.1, 0.5, 0.4, 0.5, "#e8e4da", "props"));
+  [[-1.5, fz + 1.0, "#2f3340"], [1.8, fz + 1.4, "#c9a24a"], [-4.5, fz + 1.0, "#d85a5a"]].forEach(([x, z, c]) => P.push(...person(x as number, 0.18, z as number, c as string)));
+  void X;
   return P;
 };
 
@@ -309,6 +325,95 @@ const arena: Gen = (def) => {
   return P;
 };
 
+/* ───────────────────────── STADE CHARLETY (Paris Université Club) — anneau de toit blanc, tribune en croissant, mât et voile, piste rouge ───────────────────────── */
+const stadium: Gen = (def) => {
+  const [w, d] = def.size;
+  const P: Part[] = [];
+  const oval = (x: number, y: number, z: number, ow: number, h: number, od: number, color: string, stage: "foundation" | "walls" | "roof", o: Partial<Part> = {}): Part =>
+    ({ shape: "oval", pos: [x, y, z], size: [ow, h, od], color, stage, ...o });
+  P.push(oval(0, 0, 0, w + 1.6, 0.2, d + 1.6, "#dedcd6", "foundation"));
+  // piste rouge + pelouse + lignes
+  P.push(oval(0, 0.2, 0, w * 0.64, 0.06, d * 0.64, "#b5503f", "foundation"));
+  P.push(oval(0, 0.26, 0, w * 0.52, 0.05, d * 0.52, "#5e9f4c", "foundation"));
+  P.push(box(0, 0.31, 0, 0.08, 0.02, d * 0.46, "#e9f2e4", "foundation"));
+  P.push(oval(0, 0.31, 0, 1.6, 0.02, 1.6, "#e9f2e4", "foundation", { emissive: undefined }));
+  P.push(oval(0, 0.33, 0, 1.45, 0.02, 1.45, "#5e9f4c", "foundation"));
+  for (const sx of [-1, 1]) P.push(box(sx * w * 0.25, 0.31, 0, 0.1, 0.5, 1.6, "#f4f4f4", "props"));
+  // tribunes : anneau intérieur (gradins) et anneau extérieur (mur de façade), chacun en segments tangents
+  const N = 30, rx0 = w * 0.44, rz0 = d * 0.44;
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const tx = -rx0 * Math.sin(a), tz = rz0 * Math.cos(a);
+    const seg = Math.hypot(tx, tz) * ((Math.PI * 2) / N) + 0.25;
+    const ry = Math.atan2(-tz, tx);
+    const west = Math.cos(a - 4.0) > 0.2; // côté de la grande tribune couverte (croissant)
+    const roofD = west ? 4.6 : 2.7;
+    // gradins
+    P.push(box(Math.cos(a) * rx0, 0.2, Math.sin(a) * rz0, seg, west ? 2.1 : 1.5, 1.6, "#cfcfcb", "walls", { rotY: ry }));
+    P.push(box(Math.cos(a) * (rx0 + 0.9), 0.2, Math.sin(a) * (rz0 + 0.75), seg, west ? 2.7 : 2.0, 1.2, "#bdbdb8", "walls", { rotY: ry }));
+    // piliers inclinés sous le toit
+    P.push(box(Math.cos(a) * (rx0 + 1.9), 0.2, Math.sin(a) * (rz0 + 1.5), 0.22, west ? 2.7 : 2.2, 0.22, "#d4d2cc", "structure", { rotY: ry }));
+    // anneau de toit blanc
+    P.push(box(Math.cos(a) * (rx0 + 1.0), west ? 2.9 : 2.2, Math.sin(a) * (rz0 + 0.8), seg, 0.22, roofD, "#f4f4f2", "roof", { rotY: ry }));
+    if (i % 3 === 0) P.push(box(Math.cos(a) * (rx0 + 1.0), west ? 3.12 : 2.42, Math.sin(a) * (rz0 + 0.8), seg * 0.9, 0.04, roofD * 0.18, "#2f3f5a", "roof", { rotY: ry }));
+  }
+  // mât et voile blanche (accès de la grande tribune)
+  const mx = Math.cos(4.0 + 0.2) * (rx0 + 1.8), mz = Math.sin(4.0 + 0.2) * (rz0 + 1.4);
+  P.push(cyl(mx, 0.2, mz, 0.18, 8.0, "#e8e8e6", "roof"));
+  P.push(pyr(mx, 3.2, mz, 3.0, 2.6, 3.0, "#f4f4f2", "roof"));
+  // mâts d'éclairage
+  for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as [number, number][]) {
+    P.push(cyl(dx * (w * 0.5 + 0.8), 0, dz * (d * 0.5 + 0.8), 0.12, 7.6, "#c9ccd0", "roof"));
+    P.push(box(dx * (w * 0.5 + 0.8), 7.4, dz * (d * 0.5 + 0.8), 0.9, 0.5, 0.3, "#f4f1d8", "roof", { mat: "emit", emissive: "#fff2c0" }));
+  }
+  P.push(box(0, 0.8, d * 0.5 + 1.9, 3.6, 0.5, 0.1, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "PUC" }));
+  [[-2, d * 0.5 + 2.2, "#2f4c8a"], [0.5, d * 0.5 + 2.5, "#e8e8ea"], [2.6, d * 0.5 + 2.1, "#d85a5a"], [-4, d * 0.5 + 2.3, "#4a8f6a"]].forEach(([x, z, c]) => P.push(...person(x as number, 0.18, z as number, c as string)));
+  return P;
+};
+
+/* ───────────────────────── JCCMM — immeuble carré de trois niveaux : ossature blanche, panneaux beiges, fenêtres encastrées ───────────────────────── */
+const square: Gen = (def) => {
+  const [w, d] = def.size;
+  const P: Part[] = [];
+  const FH = 2.0, floors = 3, H = FH * floors;
+  const white = "#f1efe9", beige = "#cdbfa6", dark = "#3a4551";
+  P.push(box(0, 0, 0.8, w + 2.0, 0.22, d + 3.2, "#b9b4a8", "foundation"));
+  // remplissage beige encastré, puis ossature blanche en saillie
+  P.push(box(0, 0.22, 0, w - 0.3, H, d - 0.3, beige, "walls"));
+  for (let k = 0; k <= floors; k++) P.push(box(0, 0.22 + k * FH - (k === floors ? 0.0 : 0.0), 0, w + 0.16, 0.3, d + 0.16, white, "walls"));
+  const bays = [-w / 2, -w / 6, w / 6, w / 2];
+  for (const x of bays) P.push(box(x, 0.22, d / 2, 0.34, H, 0.34, white, "structure"), box(x, 0.22, -d / 2, 0.34, H, 0.34, white, "structure"));
+  for (const z of bays.map((b) => b * (d / w))) P.push(box(w / 2, 0.22, z, 0.34, H, 0.34, white, "structure"), box(-w / 2, 0.22, z, 0.34, H, 0.34, white, "structure"));
+  // fenêtres : un bandeau double par travée, aux deux étages supérieurs ; claustra blanc au rez-de-chaussée
+  const bw = w / 3;
+  for (let f = 1; f < floors; f++) {
+    const y = 0.22 + f * FH + 0.5;
+    for (let i = 0; i < 3; i++) {
+      const cx = -w / 2 + bw * (i + 0.5);
+      P.push(box(cx, y, d / 2 - 0.12, bw - 0.7, 0.95, 0.12, dark, "windows", { mat: "window" }), box(cx, y - 0.1, d / 2 + 0.02, bw - 0.5, 0.1, 0.22, white, "windows"));
+      const cz = (-d / 2 + (d / 3) * (i + 0.5));
+      P.push(box(w / 2 - 0.12, y, cz, 0.12, 0.95, d / 3 - 0.7, dark, "windows", { mat: "window" }), box(w / 2 + 0.02, y - 0.1, cz, 0.22, 0.1, d / 3 - 0.5, white, "windows"));
+    }
+  }
+  for (let i = 0; i < 3; i++) {
+    const cx = -w / 2 + bw * (i + 0.5);
+    P.push(box(cx, 0.22, d / 2 - 0.1, bw - 0.6, 1.6, 0.1, "#2c3138", "windows"));
+    for (let k = 0; k < 6; k++) P.push(box(cx - (bw - 0.8) / 2 + k * ((bw - 0.8) / 5), 0.22, d / 2 + 0.0, 0.07, 1.6, 0.07, white, "windows"));
+  }
+  // toit-terrasse
+  P.push(box(0, 0.22 + H + 0.3, 0, w + 0.3, 0.14, d + 0.3, "#d8d5cc", "roof"));
+  // annexe basse à gauche (entrée)
+  P.push(box(-w / 2 - 1.5, 0.22, 1.0, 3.0, 2.3, 3.6, white, "walls"), box(-w / 2 - 1.5, 2.52, 1.0, 3.2, 0.16, 3.8, "#d8d5cc", "roof"));
+  P.push(box(-w / 2 - 1.5, 0.22, 2.84, 1.2, 1.7, 0.08, dark, "windows", { mat: "window" }));
+  // panneau d'accueil bleu et végétation (buissons, cyprès)
+  P.push(box(-w / 2 + 0.3, 0.22, d / 2 + 1.8, 1.5, 0.9, 0.08, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "JCCMM" }));
+  P.push(box(-w / 2 + 0.3 - 0.5, 0.22, d / 2 + 1.8, 0.06, 0.9, 0.06, "#6a6a6a", "props"), box(-w / 2 + 1.1, 0.22, d / 2 + 1.8, 0.06, 0.9, 0.06, "#6a6a6a", "props"));
+  for (const [x, z, r] of [[-w / 2 + 0.2, d / 2 + 0.8, 0.9], [-w / 2 + 1.2, d / 2 + 0.7, 0.8], [0.8, d / 2 + 0.7, 0.6]] as [number, number, number][]) P.push(sphere(x, 0.22, z, r, "#3f6a38", "props"));
+  P.push(cyl(w / 2 + 0.9, 0.22, d / 2 - 0.4, 0.8, 3.4, "#27432b", "props"));
+  [[0.2, d / 2 + 2.0, "#2f3340"], [-1.4, d / 2 + 2.3, "#d85a5a"], [2.0, d / 2 + 1.8, "#4a8fd0"]].forEach(([x, z, c]) => P.push(...person(x as number, 0.22, z as number, c as string)));
+  return P;
+};
+
 /* ───────────────────────── Aperçu du futur ───────────────────────── */
 const tower: Gen = (def) => {
   const [w, d, h] = def.size;
@@ -357,15 +462,54 @@ const site: Gen = (def) => {
   P.push(box(-w / 2 - 1.2, 0.2, d / 2 + 0.8, 1.6, 0.6, 1.0, "#c9702f", "props"));
   return P;
 };
-const landmark: Gen = () => {
+/* ───────────────────────── PARIS — tour Eiffel (quatre piliers inclinés, deux plateformes, treillis, flèche) ───────────────────────── */
+const eiffel: Gen = () => {
   const P: Part[] = [];
-  P.push(pyr(0, 0, 0, 3.2, 3.0, 3.2, "#ffffff", "structure", { tex: "lattice", texRep: [2, 2], mat: "std" }));
-  P.push(pyr(0, 3.0, 0, 1.7, 2.8, 1.7, "#ffffff", "structure", { tex: "lattice", texRep: [1.5, 1.5], mat: "std" }));
-  P.push(pyr(0, 5.8, 0, 0.8, 2.2, 0.8, "#4b4f57", "structure"));
-  P.push(sphere(0, 8.0, 0, 0.22, "#7747FF", "props", { mat: "emit", emissive: "#7747FF" }));
+  const iron = "#6b5a47";
+  P.push(box(0, 0, 0, 5.4, 0.15, 5.4, "#b3b0a6", "foundation"));
+  const a1 = Math.atan2(0.7, 4.2);
+  // quatre piliers inclinés vers l'intérieur
+  for (const [sx, sz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]] as [number, number][]) {
+    P.push(box(sx * 1.75, 0.15, sz * 1.75, 0.34, 4.3, 0.34, iron, "structure", { rotZ: sx * a1, rotX: -sz * a1 }));
+    P.push(box(sx * 1.05, 4.35, sz * 1.05, 0.26, 3.2, 0.26, iron, "structure", { rotZ: sx * 0.07, rotX: -sz * 0.07 }));
+  }
+  // arcs et poutres de la base
+  for (const z of [-1.5, 1.5]) P.push(box(0, 1.5, z, 3.0, 0.16, 0.16, iron, "structure"), box(0, 2.6, z, 2.3, 0.14, 0.14, iron, "structure"));
+  for (const x of [-1.5, 1.5]) P.push(box(x, 1.5, 0, 0.16, 0.16, 3.0, iron, "structure"), box(x, 2.6, 0, 0.14, 0.14, 2.3, iron, "structure"));
+  // première plateforme + treillis intermédiaire
+  P.push(box(0, 4.25, 0, 3.0, 0.22, 3.0, iron, "walls"));
+  P.push(pyr(0, 4.47, 0, 2.2, 3.0, 2.2, "#ffffff", "walls", { tex: "lattice", texRep: [2, 2] }));
+  // deuxième plateforme + fût et flèche
+  P.push(box(0, 7.4, 0, 1.5, 0.2, 1.5, iron, "roof"));
+  P.push(pyr(0, 7.6, 0, 1.0, 2.2, 1.0, "#ffffff", "roof", { tex: "lattice", texRep: [1.5, 1.5] }));
+  P.push(pyr(0, 9.7, 0, 0.35, 1.4, 0.35, iron, "props"));
+  P.push(sphere(0, 11.05, 0, 0.16, "#7747FF", "props", { mat: "emit", emissive: "#7747FF" }));
+  return P;
+};
+
+/* ───────────────────────── ARC DE TRIOMPHE — massif de pierre, grande baie, attique ───────────────────────── */
+const arc: Gen = () => {
+  const P: Part[] = [];
+  const stone = "#ffffff";
+  const S = (x: number, y: number, z: number, w: number, h: number, d: number, st: "walls" | "roof" = "walls", tr: [number, number] = [1.4, 1.6]) =>
+    box(x, y, z, w, h, d, stone, st, { tex: "stone", texRep: tr });
+  P.push(box(0, 0, 0, 7.2, 0.18, 5.2, "#b9b3a6", "foundation"));
+  // piliers (deux de chaque côté de la baie) et petites baies transversales
+  P.push(S(-1.95, 0.18, 0, 1.7, 3.4, 3.4), S(1.95, 0.18, 0, 1.7, 3.4, 3.4));
+  P.push(S(0, 0.18 + 2.6, 0, 2.3, 0.8, 3.4, "walls", [1.2, 0.5]));          // sous la frise : au-dessus de la baie
+  P.push(box(0, 0.18, -1.0, 2.2, 0.06, 1.2, "#6b6a64", "foundation"));       // sol sous l'arche
+  // frise sculptée, corniche, attique
+  P.push(box(0, 3.58, 0, 5.9, 0.35, 3.7, "#cdb592", "roof"));
+  P.push(S(0, 3.93, 0, 5.6, 0.75, 3.5, "roof", [3, 0.6]));
+  P.push(box(0, 4.68, 0, 6.0, 0.18, 3.8, "#cdb592", "roof"));
+  // reliefs sur les piliers (suggérés par des panneaux)
+  for (const x of [-1.95, 1.95]) P.push(box(x, 0.9, 1.72, 1.1, 1.9, 0.08, "#bda37a", "windows"));
+  // flamme du soldat inconnu + passants
+  P.push(box(0, 0.18, 0.2, 0.9, 0.06, 0.9, "#4b4a46", "props"), sphere(0, 0.28, 0.2, 0.18, "#ffb85c", "props", { mat: "emit", emissive: "#ff9a3c" }));
+  [[-1.6, 2.6, "#2f3340"], [0.4, 3.0, "#d85a5a"], [2.0, 2.6, "#4a8fd0"]].forEach(([x, z, c]) => P.push(...person(x as number, 0.18, z as number, c as string)));
   return P;
 };
 
 export const archetypes: Record<BuildingDef["archetype"], Gen> = {
-  dojo, school, station, design, cfa, federation, dojoParis, arena, tower, block, house, site, landmark,
+  dojo, school, station, design, cfa, federation, dojoParis, arena, stadium, square, tower, block, house, site, landmark: eiffel, eiffel, arc,
 };

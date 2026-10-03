@@ -137,6 +137,52 @@ const makers: Record<string, () => TexSet> = {
     }
     return { map: tex(c), emissive: tex(e) };
   },
+  archwall() {
+    const [c, g] = canvas(256, 256);
+    g.fillStyle = "#cdb592"; g.fillRect(0, 0, 256, 256);
+    const r = rng(7);
+    for (let y = 0; y < 16; y++) { g.fillStyle = `rgba(90,70,40,${0.12 + r() * 0.06})`; g.fillRect(0, y * 16, 256, 1.5); }
+    for (let i = 0; i < 2; i++) {
+      const x = 22 + i * 128, w = 84;
+      // grande baie à arc plein cintre
+      g.fillStyle = "#e0cba6"; g.beginPath(); g.moveTo(x - 6, 150); g.lineTo(x - 6, 62); g.arc(x + w / 2, 62, w / 2 + 6, Math.PI, 0); g.lineTo(x + w + 6, 150); g.fill();
+      g.fillStyle = "#56697a"; g.beginPath(); g.moveTo(x, 150); g.lineTo(x, 62); g.arc(x + w / 2, 62, w / 2, Math.PI, 0); g.lineTo(x + w, 150); g.fill();
+      g.strokeStyle = "#d8c49e"; g.lineWidth = 3;
+      for (let k = 1; k < 4; k++) { g.beginPath(); g.moveTo(x + (w * k) / 4, 150); g.lineTo(x + (w * k) / 4, 24); g.stroke(); }
+      g.beginPath(); g.moveTo(x, 90); g.lineTo(x + w, 90); g.stroke();
+      // fenêtres basses
+      g.fillStyle = "#56697a"; g.fillRect(x + 4, 178, 30, 52); g.fillRect(x + 50, 178, 30, 52);
+      g.fillStyle = "#e0cba6"; g.fillRect(x, 172, 84, 5);
+    }
+    return { map: tex(c) };
+  },
+  grandarch() {
+    const [c, g] = canvas(256, 256);
+    const [e, ge] = canvas(256, 256);
+    g.fillStyle = "#cdb592"; g.fillRect(0, 0, 256, 256);
+    ge.fillStyle = "#000"; ge.fillRect(0, 0, 256, 256);
+    for (let y = 0; y < 16; y++) { g.fillStyle = "rgba(90,70,40,.16)"; g.fillRect(0, y * 16, 256, 1.5); }
+    const draw = (ctx: CanvasRenderingContext2D, glass: string, frame: string) => {
+      ctx.fillStyle = frame; ctx.beginPath(); ctx.moveTo(14, 240); ctx.lineTo(14, 112); ctx.arc(128, 112, 114, Math.PI, 0); ctx.lineTo(242, 240); ctx.fill();
+      ctx.fillStyle = glass; ctx.beginPath(); ctx.moveTo(26, 240); ctx.lineTo(26, 112); ctx.arc(128, 112, 102, Math.PI, 0); ctx.lineTo(230, 240); ctx.fill();
+      ctx.strokeStyle = frame; ctx.lineWidth = 3;
+      for (let k = 1; k < 8; k++) { ctx.beginPath(); ctx.moveTo(26 + k * 25.5, 240); ctx.lineTo(26 + k * 25.5, 20); ctx.stroke(); }
+      for (const y of [150, 196]) { ctx.beginPath(); ctx.moveTo(26, y); ctx.lineTo(230, y); ctx.stroke(); }
+    };
+    draw(g, "#56697a", "#e0cba6"); draw(ge, "#ffcf85", "#000");
+    // horloge
+    g.fillStyle = "#f5f2ea"; g.beginPath(); g.arc(128, 70, 17, 0, 7); g.fill();
+    g.strokeStyle = "#2a2a2a"; g.lineWidth = 3; g.beginPath(); g.arc(128, 70, 17, 0, 7); g.moveTo(128, 70); g.lineTo(128, 58); g.moveTo(128, 70); g.lineTo(137, 74); g.stroke();
+    return { map: tex(c), emissive: tex(e) };
+  },
+  shed() {
+    const [c, g] = canvas(128, 128);
+    g.fillStyle = "#6d8497"; g.fillRect(0, 0, 128, 128);
+    g.strokeStyle = "rgba(20,30,45,.55)"; g.lineWidth = 2;
+    for (let i = 0; i < 8; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16, 128); g.stroke(); }
+    g.strokeStyle = "rgba(255,255,255,.18)"; for (let i = 0; i < 16; i++) { g.beginPath(); g.moveTo(0, i * 8); g.lineTo(128, i * 8); g.stroke(); }
+    return { map: tex(c) };
+  },
   siding() {
     const [c, g] = canvas(128, 128);
     g.fillStyle = "#f2f0ea"; g.fillRect(0, 0, 128, 128);
