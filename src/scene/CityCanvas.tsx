@@ -16,7 +16,7 @@ import { buildT } from "@/engine/construction";
    (distance) s'ajuste à la taille de la fenêtre pour que la ville entière reste visible. */
 const DIR = new THREE.Vector3(1, 0.86, 1.08).normalize();
 const LOOK = new THREE.Vector3(4, -1.5, 2.5);
-const LOOK_PORTRAIT = new THREE.Vector3(6, -1.5, 3);
+const LOOK_PORTRAIT = new THREE.Vector3(9, -1.5, 3);
 
 function FixedCamera() {
   const { camera, size } = useThree();
@@ -26,7 +26,7 @@ function FixedCamera() {
     const aspect = size.width / size.height;
     // hauteur visible nécessaire pour embrasser tout le diorama (cadrage statique, recalculé au resize seulement)
     const portrait = aspect < 1;
-    const needH = portrait ? (118 / aspect) * 0.6 : Math.max(70, 118 / aspect);
+    const needH = portrait ? (118 / aspect) * 0.72 : Math.max(70, 118 / aspect);
     const dist = needH / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
     const look = portrait ? LOOK_PORTRAIT : LOOK;
     cam.position.copy(look).addScaledVector(DIR, dist);
