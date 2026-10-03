@@ -67,7 +67,7 @@ const makers: Record<string, () => TexSet> = {
     ge.fillStyle = "#000"; ge.fillRect(0, 0, 1024, 512);
     const words = ["POUR", "DES", "LYCÉE", "TOURCOING", "GAMBETTA", "ÉLÈVES", "TERMINALE", "LILLE", "ENCLASSE", "UNIVERSITÉS", "FÉVRIER", "DANS", "SUR", "VENDREDI", "INFORMATION"];
     const r = rng(11);
-    const rows = [92, 72, 96, 64, 88, 60];
+    const rows = [170, 120, 130, 90];
     let y = 0;
     rows.forEach((h) => {
       let x = -10;
@@ -134,6 +134,36 @@ const makers: Record<string, () => TexSet> = {
     for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
       g.fillStyle = "#7f9bbd"; g.fillRect(i * 32 + 3, j * 32 + 4, 26, 24);
       if (r() > 0.45) { ge.fillStyle = r() > 0.5 ? "#ffd48f" : "#bcd8ff"; ge.fillRect(i * 32 + 3, j * 32 + 4, 26, 24); }
+    }
+    return { map: tex(c), emissive: tex(e) };
+  },
+  siding() {
+    const [c, g] = canvas(128, 128);
+    g.fillStyle = "#f2f0ea"; g.fillRect(0, 0, 128, 128);
+    for (let i = 0; i < 8; i++) { g.fillStyle = "rgba(90,90,85,.22)"; g.fillRect(0, i * 16 + 14, 128, 2); }
+    return { map: tex(c) };
+  },
+  ribs() {
+    const [c, g] = canvas(128, 64);
+    g.fillStyle = "#33363c"; g.fillRect(0, 0, 128, 64);
+    for (let i = 0; i < 16; i++) { g.fillStyle = "rgba(255,255,255,.10)"; g.fillRect(i * 8, 0, 2, 64); g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(i * 8 + 4, 0, 2, 64); }
+    return { map: tex(c) };
+  },
+  radial() {
+    const [c, g] = canvas(128, 64);
+    g.fillStyle = "#f3f3f1"; g.fillRect(0, 0, 128, 64);
+    for (let i = 0; i < 16; i++) { g.fillStyle = "rgba(120,125,130,.16)"; g.fillRect(i * 8, 0, 4, 64); g.fillStyle = "rgba(255,255,255,.4)"; g.fillRect(i * 8 + 4, 0, 1, 64); }
+    return { map: tex(c) };
+  },
+  slabwin() {
+    const [c, g] = canvas(256, 256);
+    const [e, ge] = canvas(256, 256);
+    g.fillStyle = "#cfcdc6"; g.fillRect(0, 0, 256, 256);
+    ge.fillStyle = "#000"; ge.fillRect(0, 0, 256, 256);
+    for (let r = 0; r < 8; r++) {
+      g.fillStyle = "#6c7d8a"; g.fillRect(0, r * 32 + 10, 256, 13);
+      g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(0, r * 32 + 9, 256, 1);
+      ge.fillStyle = "#ffd699"; ge.fillRect(0, r * 32 + 10, 256, 13);
     }
     return { map: tex(c), emissive: tex(e) };
   },

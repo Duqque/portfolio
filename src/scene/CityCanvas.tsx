@@ -6,6 +6,8 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import gsap from "gsap";
 import { cameraApi } from "@/engine/cameraApi";
 import { WORLD } from "@/data/infrastructure";
+import { story } from "@/data/buildings";
+import { smoothstep } from "@/engine/math";
 import * as THREE from "three";
 import { buildings } from "@/data/buildings";
 import { Building } from "./Building";
@@ -63,7 +65,7 @@ function Rig() {
     cameraApi.zoom = (f: number) => {
       const c = controls.current;
       if (!c) return;
-      moved.current = true;
+      moved.current = true; lastTouch.current = clock.time;
       const off = camera.position.clone().sub(c.target);
       const d = THREE.MathUtils.clamp(off.length() * f, 38, home.current.dist * 1.25);
       camera.position.copy(c.target).add(off.setLength(d));
@@ -80,9 +82,29 @@ function Rig() {
     return () => { window.removeEventListener("wheel", onWheel); window.removeEventListener("keydown", onKey); };
   }, [camera, place]);
 
-  useFrame(() => {
+  const lastTouch = useRef(-99);
+  useFrame((_, dt) => {
     const c = controls.current;
     if (!c) return;
+    // ── FOCUS : quand un bâtiment se construit, la caméra se rapproche de lui (fonction de progress), puis revient
+    const st = getState();
+    if (st.phase === "scroll" && !st.openId && clock.time - lastTouch.current > 3.5) {
+      const p = clock.progress;
+      let best: (typeof story)[number] | null = null, w = 0;
+      for (const b of story) {
+        const k = smoothstep(b.buildStart - 0.005, b.buildStart + 0.003, p) * (1 - smoothstep(b.buildEnd + 0.002, b.buildEnd + 0.012, p));
+        if (k > w) { w = k; best = b; }
+      }
+      const h = home.current;
+      const tgt = best ? h.look.clone().lerp(new THREE.Vector3(best.position[0], 1.5, best.position[2]), w) : h.look;
+      const off = camera.position.clone().sub(c.target);
+      const dir = off.clone().normalize();
+      const wantDist = THREE.MathUtils.lerp(h.dist, 56, w);
+      const k = 1 - Math.exp(-dt * 2.2);
+      c.target.lerp(tgt, k);
+      const d = THREE.MathUtils.lerp(off.length(), wantDist, k);
+      camera.position.copy(c.target).addScaledVector(dir, d);
+    }
     // borne la cible au diorama
     c.target.x = THREE.MathUtils.clamp(c.target.x, WORLD.minX, WORLD.maxX);
     c.target.z = THREE.MathUtils.clamp(c.target.z, WORLD.minZ, WORLD.maxZ);
@@ -103,7 +125,8 @@ function Rig() {
       maxPolarAngle={1.38}
       mouseButtons={{ LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN }}
       touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
-      onStart={() => { moved.current = true; }}
+      onStart={() => { moved.current = true; lastTouch.current = clock.time; }}
+      onEnd={() => { lastTouch.current = clock.time; }}
     />
   );
 }

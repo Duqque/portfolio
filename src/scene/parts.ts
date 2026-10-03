@@ -12,6 +12,8 @@ export interface Part {
   stage: StageKey;
   mat?: MatKind;
   rotY?: number;
+  rotX?: number;
+  rotZ?: number;
   grow?: "y" | "all";
   sign?: string;
   /** nom d'une texture procédurale (voir textures.ts) + répétition */

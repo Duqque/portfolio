@@ -9,11 +9,13 @@ import { buildT } from "@/engine/construction";
 import { trainSpeed } from "@/data/infrastructure";
 import { sky } from "@/engine/daynight";
 import { clamp } from "@/engine/math";
+import { scrollToProgress, progressToScroll } from "@/engine/timeMap";
 import { cityAudio } from "@/audio/engine";
 import { cameraApi } from "@/engine/cameraApi";
 import { speak, stop as stopSpeech } from "@/audio/narrator";
 import { Cards, Panel } from "./Cards";
 import { TextStory } from "./TextStory";
+import { Prologue } from "./Prologue";
 
 const CityCanvas = lazy(() => import("@/scene/CityCanvas"));
 
@@ -46,7 +48,7 @@ export default function Experience() {
 
   /* ── verrouillage du scroll tant que le temps ne doit pas avancer ── */
   useEffect(() => {
-    const free = phase === "scroll" && !openId && !textMode;
+    const free = (phase === "scroll" || phase === "prologue") && !openId && !textMode;
     document.documentElement.style.overflow = free ? "" : "hidden";
     return () => { document.documentElement.style.overflow = ""; };
   }, [phase, openId, textMode]);
@@ -62,9 +64,9 @@ export default function Experience() {
       if (st.phase === "scroll" && !st.textMode) {
         const max = document.documentElement.scrollHeight - window.innerHeight;
         const s = max > 0 ? clamp(window.scrollY / max) : 0;
-        clock.target = s * PROTOTYPE_CAP;
+        clock.target = scrollToProgress(s);
         const diff = clock.target - clock.progress;
-        clock.progress = st.reduced || Math.abs(diff) < 1e-5 ? clock.target : clock.progress + diff * (1 - Math.exp(-dt * 6));
+        clock.progress = st.reduced || Math.abs(diff) < 1e-5 ? clock.target : clock.progress + diff * (1 - Math.exp(-dt * 3));
         if (st.ended !== s > 0.985) setState({ ended: s > 0.985 });
       }
       clock.speed = dt > 0 ? Math.abs(clock.progress - lastP) / dt : 0;
@@ -135,13 +137,14 @@ export default function Experience() {
       {mounted && !textMode && <>
         <Hud />
         <IntroOverlay begin={begin} done={toScroll} />
+        <Prologue />
         <Cards />
         <Panel />
         <Subtitles />
         <EndOverlay />
         <ProgressRail />
       </>}
-      {phase === "scroll" && !textMode && <div className="spacer" aria-hidden />}
+      {(phase === "scroll" || phase === "prologue") && !textMode && <div className={phase === "prologue" ? "spacer prologue-spacer" : "spacer"} aria-hidden />}
     </main>
   );
 }
@@ -196,6 +199,7 @@ function IntroOverlay({ begin, done }: { begin: () => void; done: () => void }) 
     return () => T.forEach(clearTimeout);
   }, [phase, done]);
 
+  if (phase === "prologue") return null;
   if (phase === "scroll") return <ScrollHint />;
   const skip = phase !== "intro" && (
     <button className="skip" onClick={done}>PASSER L'INTRO →</button>
@@ -263,7 +267,7 @@ function ProgressRail() {
   const fill = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let raf = 0;
-    const f = () => { if (fill.current) fill.current.style.height = `${(clock.progress / PROTOTYPE_CAP) * 100}%`; raf = requestAnimationFrame(f); };
+    const f = () => { if (fill.current) fill.current.style.height = `${progressToScroll(clock.progress) * 100}%`; raf = requestAnimationFrame(f); };
     raf = requestAnimationFrame(f);
     return () => cancelAnimationFrame(raf);
   }, []);
@@ -271,7 +275,7 @@ function ProgressRail() {
     <div className={`rail ${phase === "scroll" ? "on" : ""}`} aria-hidden>
       <div className="track"><div ref={fill} className="fill" /></div>
       {story.filter((b) => b.card).map((b) => (
-        <i key={b.id} style={{ top: `${(b.buildEnd / PROTOTYPE_CAP) * 100}%` }} title={b.name} />
+        <i key={b.id} style={{ top: `${progressToScroll(b.buildEnd) * 100}%` }} title={b.name} />
       ))}
     </div>
   );

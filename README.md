@@ -59,3 +59,10 @@ Fait : caméra fixe, scroll = temps, construction par étapes, jour/nuit réels 
 cartes, panneau, audio synthétique + voix optionnelle (synthèse du navigateur), rewind, mobile simplifié, texte, `prefers-reduced-motion`.
 À faire : chapitres II+, GLB réels, vraies voix/musiques (`public/audio/README.md`), LOD, transformations DUQQUE avant/après,
 Global Dojo Network (lignes déjà en data), photos dans les panneaux (`panel.photos`).
+
+## Prologue, focus, rythme
+- **Prologue** (`src/ui/Prologue.tsx`, `src/data/prologue.ts`) : avant la carte, texte en machine à écrire / karaoké piloté par `public/audio/prologue.mp3` **et** par le scroll.
+  ⚠ Le texte actuel est temporaire : remplacez `PROLOGUE_TEXT` par la transcription du mp3 (ou renseignez `PROLOGUE_TIMINGS` pour une synchro mot à mot).
+- **Focus** : quand un bâtiment se construit, la caméra se rapproche de lui puis revient (se met en pause 3,5 s après une manipulation).
+- **Rythme** : `src/engine/timeMap.ts` ralentit le scroll pendant les constructions (≈ 4800 vh au total).
+- **Références** : les photos fournies sont dans `public/refs/`. Une réplique *exacte* demande des modèles GLB (Meshy) : champ `model` de `BuildingDef` (chargeur GLB pas encore codé).

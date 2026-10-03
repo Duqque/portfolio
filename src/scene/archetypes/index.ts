@@ -4,60 +4,63 @@ import { box, cyl, prism, pyr, dome, sphere, person, windowGrid, type Part } fro
 type Gen = (def: BuildingDef) => Part[];
 const WHITE_GI = "#f4f2ee";
 
-/* ───────────────────────── JC LEFOREST — petit dojo de club (brique, parapet blanc, porte rouge) ───────────────────────── */
+/* ───────────────────────── JC LEFOREST — d'après la photo : brique rouge, acrotère blanc, volume en bardage blanc, lanterneaux ───────────────────────── */
 const dojo: Gen = (def) => {
   const [w, d] = def.size;
-  const H = 2.45;
-  const brick = def.tint ?? "#ffffff"; // la teinte colore la texture brique
+  const brick = def.tint ?? "#ffffff";
   const P: Part[] = [];
+  const mW = w * 0.62, wW = w - mW;
+  const mx = -w / 2 + mW / 2, wx = w / 2 - wW / 2;
+  const Hm = 2.5, Hw = 2.1, wd = d * 0.82, wz = -(d - wd) / 2;
+  const B = (x: number, y: number, z: number, bw: number, bh: number, bd: number, st: "walls" | "roof" = "walls") =>
+    box(x, y, z, bw, bh, bd, brick, st, { tex: "brick", texRep: [Math.max(bw, bd) / 2.2, bh / 1.1] });
   // fondation + sol de tatamis
-  P.push(box(0, 0, 0.5, w + 1.6, 0.25, d + 2.2, "#b8b1a4", "foundation"));
-  P.push(box(0, 0.25, 0, w - 0.4, 0.05, d - 0.4, "#ffffff", "foundation", { tex: "tatami", texRep: [3, 2.2] }));
-  // ossature
-  for (const [x, z] of [[-w / 2, -d / 2], [w / 2, -d / 2], [-w / 2, d / 2], [w / 2, d / 2], [0, -d / 2], [0, d / 2]] as [number, number][])
-    P.push(box(x, 0.3, z, 0.22, H, 0.22, "#6e5842", "structure"));
-  // murs : fond, gauche
-  P.push(box(0, 0.25, -d / 2 + 0.1, w, H, 0.22, brick, "walls", { tex: "brick", texRep: [w / 2.2, 1.3] }));
-  P.push(box(-w / 2 + 0.1, 0.25, 0, 0.22, H, d, brick, "walls", { tex: "brick", texRep: [d / 2.2, 1.3] }));
-  // mur droit (+x) : allège + linteau + trumeaux, tatamis visibles à travers les baies
-  P.push(box(w / 2 - 0.1, 0.25, 0, 0.22, 0.75, d, brick, "walls", { tex: "brick", texRep: [d / 2.2, 0.5] }));
-  P.push(box(w / 2 - 0.1, 0.25 + H - 0.6, 0, 0.22, 0.6, d, brick, "walls", { tex: "brick", texRep: [d / 2.2, 0.4] }));
-  for (const z of [-d / 2 + 0.2, -d / 6, d / 6, d / 2 - 0.2])
-    P.push(box(w / 2 - 0.1, 1.0, z, 0.24, H - 1.35, 0.32, brick, "walls", { tex: "brick", texRep: [0.4, 1] }));
-  for (const z of [-d / 3, 0, d / 3])
-    P.push(box(w / 2 - 0.1, 1.0, z, 0.08, H - 1.35, d / 3 - 0.34, "#bcd8ec", "windows", { mat: "glass" }));
-  // façade avant : deux pans de brique + baie centrale vitrée avec encadrement blanc, porte rouge
-  const fw = (w - 2.4) / 2;
-  P.push(box(-w / 2 + fw / 2, 0.25, d / 2 - 0.1, fw, H, 0.22, brick, "walls", { tex: "brick", texRep: [fw / 2.2, 1.3] }));
-  P.push(box(w / 2 - fw / 2, 0.25, d / 2 - 0.1, fw, H, 0.22, brick, "walls", { tex: "brick", texRep: [fw / 2.2, 1.3] }));
-  P.push(box(0, 0.25 + 1.9, d / 2 - 0.1, 2.4, H - 1.9, 0.22, brick, "walls", { tex: "brick", texRep: [1.1, 0.3] }));
-  P.push(box(0, 0.3, d / 2 - 0.06, 2.3, 1.85, 0.06, "#bcd8ec", "windows", { mat: "glass" }));
-  P.push(box(0.55, 0.3, d / 2 + 0.0, 0.9, 1.75, 0.08, "#9b2227", "windows"));
-  P.push(box(-0.55, 0.3, d / 2 + 0.0, 0.9, 1.75, 0.08, "#9b2227", "windows"));
-  // encadrement blanc de l'entrée
-  P.push(box(-1.28, 0.25, d / 2 + 0.05, 0.14, 2.1, 0.16, "#f4f1ea", "walls"), box(1.28, 0.25, d / 2 + 0.05, 0.14, 2.1, 0.16, "#f4f1ea", "walls"), box(0, 2.3, d / 2 + 0.05, 2.7, 0.14, 0.16, "#f4f1ea", "walls"));
-  // toiture-terrasse : dalle, acrotère blanc, lanterneaux
-  const ty = 0.25 + H;
-  P.push(box(0, ty, 0, w + 0.3, 0.16, d + 0.3, "#8c8880", "roof"));
-  const pw = 0.18, ph = 0.34;
-  P.push(box(0, ty + 0.16, d / 2 + 0.06, w + 0.4, ph, pw, "#f4f1ea", "roof"), box(0, ty + 0.16, -d / 2 - 0.06, w + 0.4, ph, pw, "#f4f1ea", "roof"),
-    box(w / 2 + 0.06, ty + 0.16, 0, pw, ph, d + 0.3, "#f4f1ea", "roof"), box(-w / 2 - 0.06, ty + 0.16, 0, pw, ph, d + 0.3, "#f4f1ea", "roof"));
-  for (const [x, z] of [[1.6, 1.0], [2.4, -0.2], [0.8, -0.9], [-0.4, 1.2]] as [number, number][])
-    P.push(box(x, ty + 0.16, z, 0.55, 0.14, 0.55, "#e9e6df", "roof"), box(x, ty + 0.3, z, 0.4, 0.04, 0.4, "#bcd8ec", "roof", { mat: "glass" }));
-  // volume supérieur blanc à bandeaux vitrés (comme la référence)
-  const uw = w * 0.62, ud = d * 0.5;
-  P.push(box(-w * 0.14, ty + 0.16, -d * 0.2, uw, 1.1, ud, "#ffffff", "roof", { tex: "ribbon", texRep: [uw / 2.4, 1], mat: "std" }));
-  P.push(box(-w * 0.14, ty + 1.26, -d * 0.2, uw + 0.2, 0.14, ud + 0.2, "#f4f1ea", "roof"));
-  // enseigne
-  P.push(box(0, 2.38, d / 2 + 0.16, 2.4, 0.46, 0.08, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "DOJO" }));
-  // vie : judokas sur le tatami, parents, sac
+  P.push(box(0, 0, 0.6, w + 1.6, 0.25, d + 2.2, "#b8b1a4", "foundation"));
+  P.push(box(mx, 0.25, 0, mW - 0.4, 0.05, d - 0.4, "#ffffff", "foundation", { tex: "tatami", texRep: [2.4, 2.2] }));
+  // bloc principal (creux : on voit le tatami par la vitre) : fond, gauche
+  P.push(B(mx, 0.25, -d / 2 + 0.11, mW, Hm, 0.22), B(-w / 2 + 0.11, 0.25, 0, 0.22, Hm, d));
+  for (const [x, z] of [[-w / 2, -d / 2], [-w / 2, d / 2], [mx + mW / 2, d / 2], [mx + mW / 2, -d / 2]] as [number, number][]) P.push(box(x, 0.3, z, 0.2, Hm - 0.1, 0.2, "#6e5842", "structure"));
+  // façade : pan gauche, fenêtre vitrée (tatamis visibles), trumeau, porte rouge dans cadre blanc
+  const fz = d / 2 - 0.11, wl = -w / 2;
+  P.push(B(wl + 0.3, 0.25, fz, 0.6, Hm, 0.22));
+  P.push(B(wl + 1.95, 0.25, fz, 1.0 + 0.0, 0.8, 0.22), B(wl + 1.95, 1.95, fz, 1.0, Hm - 1.7, 0.22));
+  P.push(box(wl + 1.95, 1.05, fz, 1.0, 0.9, 0.06, "#bcd8ec", "windows", { mat: "glass" }));
+  P.push(B(wl + 2.75, 0.25, fz, 0.6, Hm, 0.22));
+  const dx = wl + 3.55;
+  P.push(box(dx - 0.28, 0.3, fz + 0.1, 0.5, 1.8, 0.06, "#9b2227", "windows"), box(dx + 0.28, 0.3, fz + 0.1, 0.5, 1.8, 0.06, "#9b2227", "windows"));
+  P.push(box(dx - 0.28, 0.9, fz + 0.14, 0.4, 0.7, 0.03, "#bcd8ec", "windows", { mat: "glass" }), box(dx + 0.28, 0.9, fz + 0.14, 0.4, 0.7, 0.03, "#bcd8ec", "windows", { mat: "glass" }));
+  P.push(box(dx - 0.66, 0.25, fz + 0.08, 0.1, 2.1, 0.16, "#f4f1ea", "walls"), box(dx + 0.66, 0.25, fz + 0.08, 0.1, 2.1, 0.16, "#f4f1ea", "walls"), box(dx, 2.3, fz + 0.08, 1.42, 0.1, 0.16, "#f4f1ea", "walls"));
+  P.push(B(dx + 1.1, 0.25, fz, 0.44, Hm, 0.22));
+  // aile basse (briques) : porte rouge latérale, baie
+  P.push(B(wx, 0.25, wz, wW, Hw, wd));
+  P.push(box(wx + 0.3, 0.25, wz + wd / 2 + 0.04, 0.6, 1.45, 0.06, "#8f2227", "windows"));
+  P.push(box(wx - 0.5, 0.9, wz + wd / 2 + 0.03, 0.6, 0.6, 0.05, "#7a8794", "windows", { mat: "glass" }));
+  // toitures-terrasses + acrotères blancs
+  const roof = (cx: number, cz: number, rw: number, rd: number, y: number) => {
+    P.push(box(cx, y, cz, rw + 0.1, 0.16, rd + 0.1, "#8c8880", "roof"));
+    const t = 0.16, h = 0.3, c = "#f4f1ea";
+    P.push(box(cx, y + 0.16, cz + rd / 2, rw + 0.3, h, t, c, "roof"), box(cx, y + 0.16, cz - rd / 2, rw + 0.3, h, t, c, "roof"),
+      box(cx + rw / 2, y + 0.16, cz, t, h, rd + 0.1, c, "roof"), box(cx - rw / 2, y + 0.16, cz, t, h, rd + 0.1, c, "roof"));
+  };
+  roof(mx, 0, mW, d, 0.25 + Hm);
+  roof(wx, wz, wW, wd, 0.25 + Hw);
+  // lanterneaux et groupes de ventilation
+  const sky = (x: number, z: number, y: number) => P.push(box(x, y, z, 0.5, 0.14, 0.5, "#e9e6df", "roof"), box(x, y + 0.14, z, 0.36, 0.03, 0.36, "#bcd8ec", "roof", { mat: "glass" }));
+  for (const [i, j] of [[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [1, 2]] as [number, number][]) sky(wx - 0.7 + i * 0.7, wz - wd / 2 + 0.7 + j * 0.8, 0.25 + Hw + 0.16);
+  for (const [x, z] of [[mx + 0.6, d / 2 - 0.7], [mx + 1.3, d / 2 - 1.4], [mx - 0.2, d / 2 - 0.8]] as [number, number][]) sky(x, z, 0.25 + Hm + 0.16);
+  P.push(box(wx + 0.5, 0.25 + Hw + 0.16, wz + 0.2, 0.55, 0.5, 0.45, "#e8e6e0", "roof"), box(wx - 0.3, 0.25 + Hw + 0.16, wz + 0.9, 0.4, 0.3, 0.4, "#9a9690", "roof"));
+  // volume surélevé en bardage blanc à bandeaux vitrés rouges
+  const uy = 0.25 + Hm + 0.16;
+  P.push(box(mx, uy, -d * 0.2, mW - 0.2, 1.15, d * 0.55, "#ffffff", "roof", { tex: "ribbon", texRep: [(mW - 0.2) / 2.2, 1] }));
+  P.push(box(mx, uy + 1.15, -d * 0.2, mW + 0.05, 0.13, d * 0.55 + 0.25, "#f4f1ea", "roof"));
+  // enseigne au-dessus de l'entrée
+  P.push(box(dx, 2.42, fz + 0.14, 2.0, 0.4, 0.07, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "DOJO" }));
+  // vie : judokas sur le tatami, parents et sacs à l'entrée
   const kid = ["#7747FF", "#e0c040", "#d85a5a", "#4a8fd0", "#ffffff", "#e08a3a"];
-  [[-1.8, -0.6], [-0.6, -1.1], [0.7, -0.8], [1.9, -0.4], [-1.2, 0.5], [0.4, 0.7]].forEach(([x, z], i) =>
-    P.push(...person(x, 0.3, z, WHITE_GI, { belt: kid[i], s: 0.85 })));
-  P.push(...person(2.2, 0.3, 1.0, "#2f3340", { s: 1 })); // coach
-  [[-2.2, d / 2 + 1.0, "#8a6bd1"], [2.0, d / 2 + 1.1, "#d9a066"], [2.6, d / 2 + 0.6, "#4a6fa5"]].forEach(([x, z, c]) => P.push(...person(x as number, 0.25, z as number, c as string, { s: 1 })));
-  P.push(box(-2.6, 0.25, d / 2 + 1.3, 0.5, 0.3, 0.3, "#2f3340", "props")); // sac
-  P.push(box(-w / 2 - 0.2, 0.25, d / 2 + 0.9, 1.4, 0.28, 0.4, "#7a6048", "props")); // banc
+  [[-2.6, -0.6], [-1.6, -1.1], [-0.4, -0.8], [0.4, -0.2], [-2.2, 0.5], [-1.0, 0.6]].forEach(([x, z], i) => P.push(...person(x, 0.3, z, WHITE_GI, { belt: kid[i], s: 0.85 })));
+  P.push(...person(0.1, 0.3, -1.3, "#2f3340", { s: 1 }));
+  [[dx - 1.1, d / 2 + 1.0, "#8a6bd1"], [dx + 0.7, d / 2 + 1.2, "#d9a066"], [dx + 1.5, d / 2 + 0.8, "#4a6fa5"]].forEach(([x, z, c]) => P.push(...person(x as number, 0.25, z as number, c as string)));
+  P.push(box(dx - 1.5, 0.25, d / 2 + 1.0, 0.5, 0.3, 0.3, "#2f3340", "props"));
   return P;
 };
 
@@ -69,22 +72,20 @@ const school: Gen = (def) => {
   P.push(box(0, 0.2, 0, w * 0.78, 0.06, d * 0.8, "#d9d6cf", "foundation"));
   // rez-de-chaussée vitré
   const gh = 2.1;
-  P.push(box(0.5, 0.26, 0, w * 0.74, gh, d * 0.8, "#a9cfe6", "windows", { mat: "glass" }));
-  for (let i = -3; i <= 3; i++) P.push(box(0.5 + i * (w * 0.74) / 6, 0.26, d * 0.4, 0.1, gh, 0.1, "#3d4046", "structure"));
-  // noyaux béton
-  P.push(box(-w / 2 + 0.9, 0.2, -0.2, 1.8, gh + 0.1, d * 0.8, "#ffffff", "walls", { tex: "concrete", texRep: [1, 1] }));
-  P.push(box(w / 2 - 0.45, 0.2, 0, 0.9, gh + 0.1, d * 0.8, "#ffffff", "walls", { tex: "concrete", texRep: [1, 1] }));
-  // pilotis
-  for (const x of [-w * 0.2, w * 0.1, w * 0.32]) P.push(box(x, 0.26, d * 0.42, 0.28, gh, 0.28, "#d4d6d6", "structure"));
+  const gw = w - 4.6;
+  P.push(box(0.1, 0.26, 0, gw, gh, d * 0.8, "#a9cfe6", "windows", { mat: "glass" }));
+  for (let i = -6; i <= 6; i++) P.push(box(0.1 + i * gw / 12, 0.26, d * 0.4, 0.06, gh, 0.06, "#3d4046", "structure"));
+  // noyau béton à droite, volume en porte-à-faux à gauche
+  P.push(box(w / 2 - 1.1, 0.2, 0, 2.2, gh + 0.1, d * 0.8, "#ffffff", "walls", { tex: "concrete", texRep: [1, 1] }));
   // volume supérieur perforé
   const uy = 0.26 + gh, uh = h - gh - 0.5;
-  P.push(box(-0.5, uy, 0, w, uh, d, "#ffffff", "walls", { tex: "typo", texRep: [1, 1], mat: "std" }));
+  P.push(box(0, uy, 0, w, uh, d, "#ffffff", "walls", { tex: "typo", texRep: [1, 1], mat: "std" }));
   P.push(cyl(w / 2 - 0.5 - 0.0, uy, d / 2 - 0.35, 0.7, uh, "#c8ccce", "walls")); // angle arrondi
-  P.push(box(-0.5, uy + uh, 0, w + 0.1, 0.16, d + 0.1, "#8f9498", "roof"));
+  P.push(box(0, uy + uh, 0, w + 0.1, 0.16, d + 0.1, "#8f9498", "roof"));
   P.push(box(-w * 0.2, uy + uh + 0.16, -0.5, 2.4, 0.7, 1.8, "#a0a5a8", "roof"));
   // entrée + enseigne
-  P.push(box(0.5, 0.26, d * 0.4 + 0.08, 1.8, 1.8, 0.06, "#dfeaf2", "windows", { mat: "glass" }));
-  P.push(box(0.5, gh + 0.0, d * 0.4 + 0.12, 3.6, 0.5, 0.08, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "LYCÉE" }));
+  P.push(box(0.1, 0.26, d * 0.4 + 0.08, 1.8, 1.8, 0.06, "#dfeaf2", "windows", { mat: "glass" }));
+  P.push(box(0.1, gh + 0.0, d * 0.4 + 0.12, 3.6, 0.5, 0.08, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "LYCÉE" }));
   // cour : clôture, mât + drapeau, gymnase discret
   for (let i = -5; i <= 5; i++) P.push(box(i * 1.05 - 0.2, 0.2, d / 2 + 2.2, 0.06, 0.7, 0.06, "#3d4046", "props"));
   P.push(box(-0.2, 0.55, d / 2 + 2.2, w, 0.05, 0.05, "#3d4046", "props"));
@@ -142,39 +143,41 @@ const station: Gen = (def) => {
   return P;
 };
 
-/* ───────────────────────── MJM / WEBSTART — verre, béton, brise-soleil à lames, volume créatif ───────────────────────── */
+/* ───────────────────────── MJM / WEBSTART — d'après la photo : blocs béton, brise-soleil à lames, étage de verre, hall vitré ───────────────────────── */
 const design: Gen = (def) => {
   const [w, d, h] = def.size;
   const P: Part[] = [];
+  const x0 = -w / 2, x1 = w / 2;
   P.push(box(0, 0, 0.9, w + 1.8, 0.2, d + 3.0, "#b3b0a8", "foundation"));
-  P.push(box(0.3, 0.2, 0.3, w * 0.55, 0.05, d * 0.7, "#d8d6d0", "foundation"));
-  // rez-de-chaussée : hall vitré entre deux blocs béton
-  P.push(box(0.3, 0.25, 0.3, w * 0.52, 1.9, d * 0.72, "#a9cfe6", "windows", { mat: "glass" }));
-  for (let i = -3; i <= 3; i++) P.push(box(0.3 + i * w * 0.52 / 6, 0.25, d * 0.36 + 0.3, 0.07, 1.9, 0.07, "#3d4046", "structure"));
-  P.push(box(-w * 0.37, 0.2, 0, w * 0.26, h + 0.2, d * 0.92, "#ffffff", "walls", { tex: "concrete", texRep: [1, 2.2] }));
-  P.push(box(w * 0.4, 0.2, -0.2, w * 0.22, h + 0.9, d * 0.88, "#ffffff", "walls", { tex: "concrete", texRep: [1, 2.4] }));
-  // bande de brise-soleil à lames
-  P.push(box(0.35, 2.15, 0.2, w * 0.54, 2.0, d * 0.7, "#ffffff", "walls", { tex: "louvre", texRep: [2.4, 1.5] }));
-  P.push(box(0.35, 4.15, 0.2, w * 0.56, 0.14, d * 0.72, "#6e7072", "roof"));
-  // étage de verre (bureaux) en retrait
-  P.push(box(0.6, 4.29, -0.5, w * 0.52, 1.35, d * 0.5, "#b8dcee", "windows", { mat: "glass" }));
-  P.push(box(0.6, 5.64, -0.5, w * 0.56, 0.12, d * 0.54, "#6e7072", "roof"));
-  // atelier en sheds (toit en dents de scie) côté droit : la création
-  for (const z of [-1.2, 0.4, 2.0]) P.push(prism(w * 0.4, h + 0.9, z, w * 0.2, 0.7, 1.5, "#d8d8d4", "roof", { rotY: 0 }));
-  // écrans & affiches colorés
-  P.push(box(-w * 0.37, 1.2, d * 0.46 + 0.04, 1.0, 0.7, 0.05, "#e0457b", "sign", { mat: "emit", emissive: "#e0457b" }));
-  P.push(box(-w * 0.37, 2.2, d * 0.46 + 0.04, 1.0, 0.7, 0.05, "#35b6d6", "sign", { mat: "emit", emissive: "#35b6d6" }));
-  P.push(box(-w * 0.37, 3.2, d * 0.46 + 0.04, 1.0, 0.7, 0.05, "#f2c230", "sign", { mat: "emit", emissive: "#f2c230" }));
-  P.push(box(0.3, 2.3, d * 0.36 + 0.9, 3.6, 0.5, 0.08, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "MJM" }));
-  // intérieur / bureaux : chevalets, tables, étudiants
-  [[-0.6, 0.0], [1.0, 0.6], [2.0, -0.4]].forEach(([x, z]) => P.push(box(x, 0.25, z, 0.7, 0.4, 0.5, "#e9e4da", "props")));
-  [[-1.2, 0.5, "#e0457b"], [0.4, -0.2, "#35b6d6"], [1.8, 0.5, "#f2c230"]].forEach(([x, z, c]) => P.push(...person(x as number, 0.25, z as number, c as string, { s: 0.9 })));
-  [[-0.4, -0.7], [1.4, -0.9]].forEach(([x, z]) => P.push(...person(x, 4.29, z, "#3d4c73", { s: 0.8 })));
-  // parvis : jardinières, cubes typographiques, voitures garées, panneau
-  for (const x of [-1.2, 0.2, 1.6, 3.0]) P.push(box(x, 0.2, d / 2 + 1.1, 0.5, 0.45, 0.5, "#6f8f52", "props"));
+  P.push(box(0.2, 0.2, 0.3, w - 1.4, 0.05, d * 0.8, "#4b4d52", "foundation"));
+  // bloc béton gauche (derrière le hall) et bloc droit plus haut
+  P.push(box(x0 + 0.7, 0.2, 0, 1.4, h + 0.4, d * 0.92, "#ffffff", "walls", { tex: "concrete", texRep: [1, 2.2] }));
+  P.push(box(x1 - 0.5, 0.2, -0.2, 1.0, h + 1.0, d * 0.9, "#ffffff", "walls", { tex: "concrete", texRep: [1, 2.4] }));
+  // hall vitré sur deux niveaux (à gauche) + montants
+  const lx = x0 + 1.4, lw = 1.7;
+  P.push(box(lx + lw / 2, 0.2, d * 0.2, lw, 3.4, 0.08, "#a9cfe6", "windows", { mat: "glass" }));
+  for (const x of [lx, lx + lw / 2, lx + lw]) P.push(box(x, 0.2, d * 0.2 + 0.04, 0.06, 3.4, 0.06, "#3d4046", "structure"));
+  P.push(box(lx + lw / 2, 3.6, d * 0.2, lw, 0.2, d * 0.35, "#50545a", "roof"));
+  // rez-de-chaussée ouvert (stationnement) à droite : fond sombre, piliers, voitures
+  const rx0 = lx + lw, rx1 = x1 - 1.0;
+  P.push(box((rx0 + rx1) / 2, 0.2, -d * 0.1, rx1 - rx0, 1.7, 0.1, "#2c2f35", "walls"));
+  P.push(box((rx0 + rx1) / 2 + 0.3, 0.2, d * 0.15, rx1 - rx0 - 0.9, 1.7, 0.06, "#cfe3ee", "windows", { mat: "glass" }));
+  for (const x of [rx0 + 0.15, (rx0 + rx1) / 2, rx1 - 0.15]) P.push(box(x, 0.2, d * 0.32, 0.22, 1.7, 0.22, "#2c2f35", "structure"));
+  // bande de brise-soleil à lames, en 3 trames
+  const bx = (rx0 + rx1) / 2, bw = rx1 - lx;
+  P.push(box((lx + rx1) / 2, 1.9, d * 0.1, bw, 2.25, d * 0.56, "#ffffff", "walls", { tex: "louvre", texRep: [bw / 2.4, 1.1] }));
+  P.push(box((lx + rx1) / 2, 4.15, d * 0.1, bw + 0.1, 0.14, d * 0.58, "#6e7072", "roof"));
+  // étage de verre (bureaux) en retrait + toit-terrasse
+  P.push(box(bx - 0.2, 4.29, -d * 0.05, bw - 0.9, 1.35, d * 0.36, "#b8dcee", "windows", { mat: "glass" }));
+  P.push(box(bx - 0.2, 5.64, -d * 0.05, bw - 0.8, 0.12, d * 0.4, "#6e7072", "roof"));
+  // enseigne : panneau posé devant
+  P.push(box(x0 + 0.1, 0.2, d / 2 + 1.5, 2.3, 1.1, 0.12, "#8a8b8f", "sign", { mat: "sign", sign: def.sign ?? "MJM" }));
+  // plantes, voitures, personnages
+  for (const x of [lx + 0.2, lx + 1.0, rx0 + 0.6]) P.push(box(x, 0.2, d / 2 + 1.0, 0.4, 0.45, 0.4, "#6f8f52", "props"));
   const car = (x: number, z: number, c: string) => P.push(box(x, 0.2, z, 1.5, 0.38, 0.75, c, "props"), box(x + 0.05, 0.58, z, 0.8, 0.3, 0.68, "#cfe0ea", "props"));
-  car(-w / 2 - 1.6, d / 2 + 1.5, "#4a8fd0"); car(w / 2 + 1.4, d / 2 + 1.7, "#9aa7b8");
-  P.push(...person(w / 2 + 0.2, 0.2, d / 2 + 1.0, "#e0457b"), ...person(-1.8, 0.2, d / 2 + 1.4, "#35b6d6"));
+  car(rx0 + 0.9, d * 0.05, "#e8e8ea"); car(rx1 - 0.9, d * 0.05, "#c1272d"); car(x0 - 1.5, d / 2 + 1.7, "#4a8fd0"); car(x1 + 1.4, d / 2 + 1.7, "#9aa7b8");
+  [[bx - 1.2, -d * 0.1, "#3d4c73"], [bx + 0.3, -d * 0.12, "#e8e8ea"], [bx + 1.2, -d * 0.08, "#3d4c73"]].forEach(([x, z, c]) => P.push(...person(x as number, 4.29, z as number, c as string, { s: 0.8 })));
+  P.push(...person(lx + lw / 2, 0.25, d * 0.45, "#e0457b"), ...person(rx0 + 1.8, 0.2, d / 2 + 1.1, "#35b6d6"));
   return P;
 };
 
@@ -211,33 +214,32 @@ const cfa: Gen = (def) => {
   return P;
 };
 
-/* ───────────────────────── FFJUDO — barre institutionnelle + coupole sombre (salle de formation) ───────────────────────── */
+/* ───────────────────────── FFJUDO — d'après la photo : longue barre de béton à bandeaux + grande coupole sombre nervurée ───────────────────────── */
 const federation: Gen = (def) => {
   const [w, d, h] = def.size;
   const P: Part[] = [];
-  P.push(box(0, 0, 0.3, w + 1.6, 0.2, d + 2.4, "#b9b6ae", "foundation"));
-  // barre béton à bandeaux (volume long et mince)
-  P.push(box(-1.2, 0.2, -1.5, w - 1.2, h - 0.2, 2.5, "#ffffff", "walls", { tex: "concrete", texRep: [4.5, 1.7] }));
-  for (let r = 0; r < 4; r++) P.push(box(-1.2, 0.9 + r * 0.8, -0.24, w - 1.6, 0.28, 0.05, "#7f98ac", "windows", { mat: "window" }));
-  P.push(box(-1.2, h, -1.5, w - 1.0, 0.16, 2.7, "#8c8f90", "roof"));
-  P.push(box(-3, h + 0.16, -1.5, 1.2, 0.5, 1.1, "#a8abad", "roof"), box(1.2, h + 0.16, -1.5, 1.4, 0.4, 1.1, "#a8abad", "roof"));
-  // coupole de la salle de formation (tatamis visibles par la baie)
-  const cx = w / 2 - 3.1, cz = 0.9;
-  P.push(cyl(cx, 0.2, cz, 1, 1.2, "#34373d", "walls", { size: [6.2, 1.2, 4.4] } as never));
-  P.push(box(cx, 0.6, cz + 2.1, 3.2, 0.5, 0.08, "#9bb673", "windows", { mat: "emit", emissive: "#6b8a4b" }));
-  P.push(dome(cx, 1.4, cz, 6.2, 2.3, 4.4, "#3b3f46", "roof"));
-  P.push(dome(cx - 0.3, 3.55, cz - 0.1, 2.6, 0.35, 1.8, "#9ec3d6", "roof", { mat: "glass" }));
-  // pavillon d'accueil vitré + enseigne
-  P.push(box(-w / 2 + 1.4, 0.2, 1.1, 3.0, 1.9, 1.8, "#a9cfe6", "windows", { mat: "glass" }));
-  P.push(box(-w / 2 + 1.4, 2.1, 1.1, 3.3, 0.14, 2.1, "#e8e6e0", "roof"));
-  P.push(box(-w / 2 + 1.4, 1.55, 2.08, 2.6, 0.4, 0.08, "#ffffff", "sign", { mat: "sign", sign: "FÉDÉRATION FRANÇAISE\nDE JUDO" }));
-  // mâts + drapeaux (bleu, blanc, rouge) et escalier
+  P.push(box(0, 0, 0.3, w + 1.8, 0.2, d + 2.6, "#b9b6ae", "foundation"));
+  // barre : 8 niveaux de bandeaux vitrés, deux édicules en toiture
+  const sw = w * 0.74, sx = -w / 2 + sw / 2, sd = 2.5, sz = -d / 2 + sd / 2;
+  P.push(box(sx, 0.2, sz, sw, h + 1.1, sd, "#ffffff", "walls", { tex: "slabwin", texRep: [sw / 4, 1.4] }));
+  P.push(box(sx, h + 1.3, sz, sw + 0.15, 0.16, sd + 0.15, "#8c8f90", "roof"));
+  P.push(box(sx - 1.2, h + 1.46, sz, 1.0, 0.5, 1.2, "#a8abad", "roof"), box(sx + 1.8, h + 1.46, sz, 1.2, 0.4, 1.2, "#a8abad", "roof"), box(sx + 3.4, h + 1.46, sz, 0.7, 0.35, 1.0, "#a8abad", "roof"));
+  // coupole sombre à nervures (large, débordant devant la barre)
+  const cx = w / 2 - 3.4, cz = d / 2 - 2.3;
+  P.push(cyl(cx, 0.2, cz, 1, 1.5, "#ffffff", "walls", { size: [7.0, 1.5, 5.4], tex: "ribs", texRep: [28, 1] } as never));
+  P.push(box(cx, 0.9, cz + 2.65, 3.6, 0.45, 0.08, "#9bb673", "windows", { mat: "emit", emissive: "#6b8a4b" }));
+  P.push(dome(cx, 1.7, cz, 7.0, 2.4, 5.4, "#ffffff", "roof", { tex: "ribs", texRep: [28, 1] }));
+  P.push(dome(cx - 0.4, 4.0, cz - 0.1, 3.0, 0.3, 2.1, "#9ec3d6", "roof", { mat: "glass" }));
+  // pavillon d'accueil vitré + enseigne, mâts aux couleurs
+  P.push(box(-w / 2 + 1.5, 0.2, d / 2 - 1.2, 3.0, 1.9, 1.8, "#a9cfe6", "windows", { mat: "glass" }));
+  P.push(box(-w / 2 + 1.5, 2.1, d / 2 - 1.2, 3.3, 0.14, 2.1, "#e8e6e0", "roof"));
+  P.push(box(-w / 2 + 1.5, 1.55, d / 2 - 0.3, 2.6, 0.4, 0.08, "#ffffff", "sign", { mat: "sign", sign: "FÉDÉRATION FRANÇAISE\nDE JUDO" }));
   [["#2f4c8a", 0], ["#f4f2ee", 0.7], ["#c1272d", 1.4]].forEach(([c, dx]) => {
-    P.push(cyl(-w / 2 + 3.6 + (dx as number), 0.2, d / 2 + 0.9, 0.07, 3.0, "#c9c9c9", "props"));
-    P.push(box(-w / 2 + 3.6 + (dx as number) + 0.24, 2.4, d / 2 + 0.9, 0.45, 0.3, 0.04, c as string, "props"));
+    P.push(cyl(-w / 2 + 3.8 + (dx as number), 0.2, d / 2 + 0.9, 0.07, 3.0, "#c9c9c9", "props"));
+    P.push(box(-w / 2 + 3.8 + (dx as number) + 0.24, 2.4, d / 2 + 0.9, 0.45, 0.3, 0.04, c as string, "props"));
   });
-  for (let i = 0; i < 3; i++) P.push(box(-w / 2 + 1.4, 0.2 + i * 0.08, 2.0 + 0.3 * (2 - i), 2.4, 0.08, 0.3, "#c9c5bc", "foundation"));
-  [[-w / 2 + 0.8, 3.3, "#2f3340"], [-w / 2 + 2.2, 3.5, "#34406e"], [cx - 2, 3.4, WHITE_GI], [cx - 0.8, 3.7, WHITE_GI]].forEach(([x, z, c]) => P.push(...person(x as number, 0.2, z as number, c as string, { s: 1 })));
+  for (let i = 0; i < 3; i++) P.push(box(-w / 2 + 1.5, 0.2 + i * 0.08, d / 2 + 0.7 + 0.3 * (2 - i), 2.4, 0.08, 0.3, "#c9c5bc", "foundation"));
+  [[-w / 2 + 0.8, d / 2 + 1.3, "#2f3340"], [-w / 2 + 2.2, d / 2 + 1.5, "#34406e"], [cx - 2.4, d / 2 + 1.2, WHITE_GI], [cx - 1.0, d / 2 + 1.5, WHITE_GI]].forEach(([x, z, c]) => P.push(...person(x as number, 0.2, z as number, c as string)));
   return P;
 };
 
@@ -275,6 +277,35 @@ const dojoParis: Gen = (def) => {
   P.push(...person(0, 0.3, -1.4, "#1e2a50", { s: 1.15 }));
   [-2.4, -1.2, 0, 1.2, 2.4].forEach((x, i) => P.push(...person(x, 0.3, -0.2, WHITE_GI, { belt: ["#e0c040", "#d85a5a", "#4a8fd0", "#7747FF", "#2f3340"][i], s: 0.9 })));
   P.push(...person(-1, 0.25, d / 2 + 1.3, "#8a6bd1"), ...person(2.3, 0.25, d / 2 + 1.0, "#c9a24a"));
+  return P;
+};
+
+/* ───────────────────────── GRAND DÔME DE VILLEBON — d'après la photo : dôme blanc nervuré sur socle de béton, rampes en étoile ───────────────────────── */
+const arena: Gen = (def) => {
+  const [w, d] = def.size;
+  const P: Part[] = [];
+  const R = Math.min(w, d) / 2 - 1.4;
+  P.push(box(0, 0, 0, w, 0.2, d, "#c9c5bc", "foundation"));
+  // socle de béton : deux ailes sur pilotis + liaison
+  P.push(box(-R * 0.62, 0.2, 0, 2.4, 1.5, R * 1.7, "#ffffff", "walls", { tex: "concrete", texRep: [2, 0.8] }));
+  P.push(box(R * 0.62, 0.2, 0, 2.4, 1.5, R * 1.7, "#ffffff", "walls", { tex: "concrete", texRep: [2, 0.8] }));
+  P.push(box(0, 0.2, R * 0.62, R * 1.6, 1.5, 2.2, "#ffffff", "walls", { tex: "concrete", texRep: [3, 0.8] }));
+  P.push(box(0, 0.2, -R * 0.62, R * 1.6, 1.5, 2.2, "#ffffff", "walls", { tex: "concrete", texRep: [3, 0.8] }));
+  for (let i = -3; i <= 3; i++) P.push(box(-R * 0.62 - 1.3, 0.2, i * R * 0.25, 0.14, 1.3, 0.14, "#bdbab2", "structure"), box(R * 0.62 + 1.3, 0.2, i * R * 0.25, 0.14, 1.3, 0.14, "#bdbab2", "structure"));
+  // dôme blanc à nervures radiales, anneau de rive, oculus
+  P.push(cyl(0, 1.2, 0, 1, 0.9, "#ffffff", "walls", { size: [R * 2, 0.9, R * 2], tex: "radial", texRep: [32, 1] } as never));
+  P.push(dome(0, 2.1, 0, R * 2 - 0.2, 1.5, R * 2 - 0.2, "#ffffff", "roof", { tex: "radial", texRep: [32, 1] }));
+  P.push(cyl(0, 3.55, 0, 1, 0.1, "#ffffff", "roof", { size: [R * 0.5, 0.1, R * 0.5] } as never));
+  P.push(cyl(0, 1.95, 0, 1, 0.16, "#dedcd6", "roof", { size: [R * 2 + 0.3, 0.16, R * 2 + 0.3] } as never));
+  // rampes diagonales aux quatre angles
+  const len = 4.4, drop = 1.7, ang = Math.atan2(drop, len);
+  [1, 3, 5, 7].forEach((k) => {
+    const a = (k * Math.PI) / 4, cr = R + 1.0 + len / 2;
+    P.push(box(Math.cos(a) * cr, drop / 2 - 0.2, Math.sin(a) * cr, len, 0.22, 0.9, "#b9b6ae", "structure", { rotY: -a, rotZ: -ang * (Math.cos(0) ) }));
+  });
+  P.push(box(0, 0.2, R + 1.0, 3.0, 0.6, 0.6, "#a9a69c", "foundation"));
+  P.push(box(0, 1.0, R * 0.62 + 1.12, 2.6, 0.7, 0.08, "#ffffff", "sign", { mat: "sign", sign: def.sign ?? "GRAND DÔME" }));
+  [[-1.5, R + 1.9], [0.6, R + 2.3], [1.8, R + 1.6]].forEach(([x, z], i) => P.push(...person(x, 0.2, z, ["#2f3340", "#d85a5a", "#4a8fd0"][i])));
   return P;
 };
 
@@ -336,5 +367,5 @@ const landmark: Gen = () => {
 };
 
 export const archetypes: Record<BuildingDef["archetype"], Gen> = {
-  dojo, school, station, design, cfa, federation, dojoParis, tower, block, house, site, landmark,
+  dojo, school, station, design, cfa, federation, dojoParis, arena, tower, block, house, site, landmark,
 };

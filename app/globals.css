@@ -16,7 +16,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #stars { position: fixed; inset: 0; opacity: 0; pointer-events: none; }
 #stars i { position: absolute; width: 1px; height: 1px; border-radius: 50%; }
 .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(5, 6, 16, 0.55) 100%); }
-.spacer { height: 1700vh; pointer-events: none; }
+.spacer { height: 4800vh; pointer-events: none; }
 
 /* HUD */
 .hud { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px; pointer-events: none; z-index: 20; gap: 16px; }
@@ -48,13 +48,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @keyframes blink { 50% { opacity: 0.35; } }
 .skip { position: absolute; right: 24px; bottom: 24px; pointer-events: auto; background: transparent; border: 0; font-size: 10px; letter-spacing: 0.2em; opacity: 0.6; }
 .skip:hover { opacity: 1; }
-.hint { position: fixed; left: 50%; bottom: 17vh; transform: translateX(-50%); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; opacity: 0; transition: opacity 1s; pointer-events: none; z-index: 12; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55); white-space: nowrap; }
+.hint { position: fixed; left: 24px; bottom: 17vh; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; opacity: 0; transition: opacity 1s; pointer-events: none; z-index: 12; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55); white-space: nowrap; }
 .hint.on { opacity: 0.9; }
-.hint b { display: block; text-align: center; margin-top: 6px; animation: bob 1.6s infinite; }
+.hint b { display: block; text-align: left; margin-top: 6px; animation: bob 1.6s infinite; }
 @keyframes bob { 50% { transform: translateY(6px); } }
 
 /* Sous-titres */
-.subs { position: fixed; left: 50%; bottom: 6vh; transform: translateX(-50%); width: min(760px, calc(100vw - 48px)); text-align: center; pointer-events: none; z-index: 12; opacity: 0; transition: opacity 0.6s; }
+.subs { position: fixed; left: 24px; bottom: 5vh; width: min(560px, calc(100vw - 48px)); text-align: left; pointer-events: none; z-index: 12; opacity: 0; transition: opacity 0.6s; }
 .subs.on { opacity: 1; }
 body:has(.panel.on) .subs { opacity: 0; }
 .subs p { margin: 0; display: inline-block; padding: 10px 18px; font-size: clamp(14px, 1.6vw, 18px); line-height: 1.5; background: rgba(8, 9, 22, 0.58); backdrop-filter: blur(8px); border-radius: 10px; animation: rise 0.7s ease both; }
@@ -149,3 +149,22 @@ canvas:active { cursor: grabbing; }
 .card:hover em, .card:focus-visible em { display: inline; }
 .card code, .card span { display: none !important; }
 .card::after { background: rgba(110, 180, 255, 0.8) !important; }
+
+/* Prologue (machine à écrire / karaoké) */
+.prologue-spacer { height: 500vh; }
+.prologue { position: fixed; inset: 0; z-index: 60; background: #05060f; display: flex; align-items: flex-end; padding: 0 24px 9vh; transition: opacity 0.9s; }
+.prologue.leaving { opacity: 0; pointer-events: none; }
+.p-gate { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; text-align: center; }
+.p-gate p { margin: 0; letter-spacing: 0.4em; font-size: 14px; }
+.p-gate small { letter-spacing: 0.3em; font-size: 10px; opacity: 0.6; margin-bottom: 18px; }
+.p-gate .cta { pointer-events: auto; }
+.skip.static { position: static; }
+.karaoke { margin: 0; max-width: 760px; font-size: clamp(20px, 2.5vw, 34px); font-weight: 300; line-height: 1.5; text-align: left; }
+.karaoke .w.future { opacity: 0.14; }
+.karaoke .w.done { opacity: 0.92; }
+.karaoke .w.cur { opacity: 1; color: #fff; }
+.karaoke .rest { opacity: 0.14; }
+.karaoke .caret { display: inline-block; width: 2px; height: 1em; margin-left: 1px; vertical-align: -0.12em; background: #b79dff; animation: blink 0.9s infinite; }
+.p-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(255, 255, 255, 0.08); }
+.p-bar i { display: block; height: 100%; background: var(--accent); }
+.prologue .skip { z-index: 2; }

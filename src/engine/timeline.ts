@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-export type Phase = "intro" | "rewind" | "void" | "scroll";
+export type Phase = "prologue" | "intro" | "rewind" | "void" | "scroll";
 
 /** État haute fréquence, lu par la scène à chaque frame (jamais via React). */
 export const clock = {
@@ -32,7 +32,7 @@ export interface UIState {
 }
 
 let state: UIState = {
-  phase: "intro", openId: null, voice: false, sound: true, subtitles: true, textMode: false,
+  phase: "prologue", openId: null, voice: false, sound: true, subtitles: true, textMode: false,
   reduced: false, low: false, completed: [], started: false, beat: -1, ended: false,
 };
 const listeners = new Set<() => void>();

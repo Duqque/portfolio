@@ -137,9 +137,9 @@ export const chapterTwo: BuildingDef[] = [
     card: { tagline: "Un club de plus" }, cardLift: 46, cardDx: -10, panel: later("De nouveaux clubs"),
   },
   {
-    id: "grand-dome", name: "Grand Dôme de Villebon", chapter: "formation", category: "federation", archetype: "federation",
-    position: [40, 0, 19.5], rotationY: Math.PI, size: [11, 5.6, 4.4], buildStart: 0.284, buildEnd: 0.312, importance: 4, country: "france",
-    description: "Un équipement à une autre échelle.", connections: [], anchor: [40, 15.7], sign: "GRAND DÔME",
+    id: "grand-dome", name: "Grand Dôme de Villebon", chapter: "formation", category: "federation", archetype: "arena",
+    position: [40, 0, 22], size: [13, 13, 4.2], buildStart: 0.284, buildEnd: 0.312, importance: 4, country: "france",
+    description: "Un équipement à une autre échelle.", connections: [], anchor: [40, 14.2], sign: "GRAND DÔME",
     card: { tagline: "Une autre échelle" }, cardLift: 10, cardDx: 20, panel: later("Une autre échelle"),
   },
 ];
@@ -157,15 +157,15 @@ export const teasers: BuildingDef[] = [
   T({ id: "gdn-4", name: "Dojo — Prague", archetype: "dojo", position: [28, 0, 28], size: [6.6, 5, 3.4], buildStart: 0.86, buildEnd: 0.92, sign: "DOJO", tint: "#7fa3c7" }),
   T({ id: "gdn-5", name: "Dojo — Almaty", archetype: "dojo", position: [-30, 0, 22], size: [6.6, 5, 3.4], buildStart: 0.88, buildEnd: 0.94, sign: "DOJO", tint: "#8fbf8a" }),
   T({ id: "rokudan", name: "Rokudan", archetype: "site", position: [-3, 0, 21], size: [7, 6, 6], buildStart: 0.62, buildEnd: 0.9, status: "construction" }),
-  T({ id: "jenyz", name: "Jenyz France", archetype: "site", position: [49, 0, 27], size: [6, 6, 6], buildStart: 0.7, buildEnd: 0.92, status: "construction" }),
+  T({ id: "jenyz", name: "Jenyz France", archetype: "site", position: [-40, 0, 24], size: [6, 6, 6], buildStart: 0.7, buildEnd: 0.92, status: "construction" }),
   T({ id: "innovation-lab", name: "Sport Innovation Lab", archetype: "block", position: [12, 0, 23], size: [7, 6, 7], buildStart: 0.6, buildEnd: 0.78, tint: "#6aa4d8", sign: "LAB" }),
 ];
 
 function scatterHouses(): BuildingDef[] {
   const r = rng(77);
   const spots: [number, number][] = [
-    [-37, 6], [-36, -4], [-29, -16], [-20, -12], [-5, -22.5], [10, -22.5], [27, -22.5], [38, -14],
-    [-38, 15], [-14, 28], [-30, 27], [10, 28], [46, 28], [47, 12], [-40, 26], [20, 28],
+    [-37, 6], [-36, -4], [-24, -23], [-20, -12], [-5, -22.5], [10, -22.5], [27, -22.5], [38, -14],
+    [-38, 15], [-14, 28], [-30, 27], [10, 28], [46, 28], [47, 12], [-34, 28], [20, 28],
   ];
   return spots.map(([x, z], i) => {
     const w = 3.4 + r() * 2.2, d = 3 + r() * 1.8, h = 2.4 + r() * 3.2;

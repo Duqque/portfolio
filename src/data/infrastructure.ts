@@ -28,7 +28,7 @@ export const roads: RoadDef[] = [
   { id: "spur-jccmm", points: [[-35, 8.0], [-35, 10]], width: 1.2, start: 0.27, end: 0.274 },
   { id: "spur-jfp", points: [[-6, 13.2], [-6, 10]], width: 1.2, start: 0.222, end: 0.226 },
   { id: "spur-puc", points: [[-21, 14.2], [-21, 10]], width: 1.2, start: 0.246, end: 0.25 },
-  { id: "spur-dome", points: [[40, 15.7], [40, 10]], width: 1.2, start: 0.308, end: 0.312 },
+  { id: "spur-dome", points: [[40, 14.2], [40, 10]], width: 1.2, start: 0.308, end: 0.312 },
   { id: "avenue-hq", points: [[46, 8], [44, 8], [44, -1]], width: 2.6, start: 0.5, end: 0.6 },
   { id: "ring-south", points: [[-30, 22], [-3, 22], [12, 22], [38, 22]], width: 2.4, start: 0.6, end: 0.8 },
   { id: "north-link", points: [[-12, 10], [-12, -6]], width: 2, start: 0.7, end: 0.78 },
@@ -66,7 +66,7 @@ export const traceSegments: TraceSegmentDef[] = [
   { id: "dojo-jfp", points: [[32, 10.6], [-6, 10.6], [-6, 13.2]], start: 0.206, end: 0.226 },
   { id: "jfp-puc", points: [[-6, 13.2], [-6, 11.2], [-21, 11.2], [-21, 14.2]], start: 0.232, end: 0.25 },
   { id: "puc-jccmm", points: [[-21, 14.2], [-21, 11.2], [-35, 11.2], [-35, 8.0]], start: 0.256, end: 0.274 },
-  { id: "jccmm-dome", points: [[-35, 8.0], [-35, 11.8], [40, 11.8], [40, 15.7]], start: 0.282, end: 0.312 },
+  { id: "jccmm-dome", points: [[-35, 8.0], [-35, 11.8], [40, 11.8], [40, 14.2]], start: 0.282, end: 0.312 },
   /* réseau futur (Global Dojo Network) — mêmes mécaniques, autre teinte */
   { id: "net-1", kind: "network", points: [[-23, 8, 0.4], [-18, 4, 7], [-12, -4, 0.4]], start: 0.8, end: 0.84 },
   { id: "net-2", kind: "network", points: [[-23, 8, 0.4], [-9, 18, 9], [5, 22, 0.4]], start: 0.86, end: 0.9 },

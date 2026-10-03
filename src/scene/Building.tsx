@@ -84,7 +84,7 @@ export function Building({ def }: { def: BuildingDef }) {
           geometry={geometryFor(p.shape)}
           material={materialFor(p)}
           position={p.pos}
-          rotation={[0, p.rotY ?? 0, 0]}
+          rotation={[p.rotX ?? 0, p.rotY ?? 0, p.rotZ ?? 0, "YZX"]}
           castShadow={p.mat !== "glass" && p.size[1] > 0.12}
           receiveShadow
           visible={false}
