@@ -15,8 +15,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 #sky { position: fixed; inset: 0; background: linear-gradient(#86b4ea, #e3eef6); }
 #stars { position: fixed; inset: 0; opacity: 0; pointer-events: none; }
 #stars i { position: absolute; width: 1px; height: 1px; border-radius: 50%; }
-.vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(5, 6, 16, 0.42) 100%); }
-.spacer { height: 1000vh; pointer-events: none; }
+.vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(5, 6, 16, 0.55) 100%); }
+.spacer { height: 1700vh; pointer-events: none; }
 
 /* HUD */
 .hud { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px; pointer-events: none; z-index: 20; gap: 16px; }
@@ -132,3 +132,20 @@ body:has(.panel.on) .subs { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
 }
+
+/* Caméra libre */
+.camera { pointer-events: auto; position: fixed; right: 24px; bottom: 28px; z-index: 20; display: grid; gap: 6px; }
+.camera button { width: 40px; height: 40px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(10px); font-size: 18px; line-height: 1; }
+.camera button:hover { background: rgba(40, 36, 80, 0.85); }
+@media (max-width: 820px) { .camera { bottom: 96px; right: 14px; } }
+canvas { cursor: grab; touch-action: none; }
+canvas:active { cursor: grabbing; }
+
+/* Labels façon carte tactique */
+.card { flex-direction: row; display: flex; align-items: center; gap: 8px; min-width: 0 !important; padding: 7px 12px 7px 9px !important; border-radius: 4px !important; border: 1px solid rgba(110, 180, 255, 0.55) !important; background: rgba(8, 12, 22, 0.82) !important; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 14px rgba(58, 160, 232, 0.25) !important; }
+.card i { font-style: normal; font-size: 13px; color: #6cc0ff; width: 16px; text-align: center; }
+.card b { font-size: 10px !important; letter-spacing: 0.2em !important; white-space: nowrap; }
+.card em { display: none; font-style: normal; font-size: 10px; color: #8fcaff; letter-spacing: 0.06em; border-left: 1px solid rgba(110,180,255,.4); padding-left: 8px; white-space: nowrap; }
+.card:hover em, .card:focus-visible em { display: inline; }
+.card code, .card span { display: none !important; }
+.card::after { background: rgba(110, 180, 255, 0.8) !important; }

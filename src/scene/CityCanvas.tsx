@@ -1,10 +1,15 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { OrbitControls } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import gsap from "gsap";
+import { cameraApi } from "@/engine/cameraApi";
+import { WORLD } from "@/data/infrastructure";
 import * as THREE from "three";
 import { buildings } from "@/data/buildings";
 import { Building } from "./Building";
-import { Terrain, Pond, Rails, Trees, Lamps } from "./World";
+import { Terrain, Pond, Rails, Trees, Lamps, Beacons } from "./World";
 import { Roads } from "./Roads";
 import { Trace } from "./Trace";
 import { Trains, Crowd, Cars } from "./Life";
@@ -12,30 +17,95 @@ import { Lighting } from "./Lighting";
 import { getState, clock } from "@/engine/timeline";
 import { buildT } from "@/engine/construction";
 
-/* CAMÉRA FIXE — position et cible constantes. Aucune interaction ne la modifie : seul le cadrage
-   (distance) s'ajuste à la taille de la fenêtre pour que la ville entière reste visible. */
+/* CAMÉRA LIBRE — glisser = orbite, clic droit / deux doigts = déplacement, boutons ou Ctrl+molette = zoom.
+   La molette seule reste réservée au temps (scroll de la page). La cible est bornée au diorama. */
 const DIR = new THREE.Vector3(1, 0.86, 1.08).normalize();
 const LOOK = new THREE.Vector3(4, -1.5, 2.5);
 const LOOK_PORTRAIT = new THREE.Vector3(9, -1.5, 3);
 
-function FixedCamera() {
-  const { camera, size } = useThree();
-  useEffect(() => {
+function Rig() {
+  const { camera, size, gl } = useThree();
+  const controls = useRef<OrbitControlsImpl>(null);
+  const home = useRef({ pos: new THREE.Vector3(), look: new THREE.Vector3(), dist: 150 });
+
+  const place = useCallback((smooth: boolean) => {
     const cam = camera as THREE.PerspectiveCamera;
-    cam.fov = 22;
     const aspect = size.width / size.height;
-    // hauteur visible nécessaire pour embrasser tout le diorama (cadrage statique, recalculé au resize seulement)
     const portrait = aspect < 1;
     const needH = portrait ? (118 / aspect) * 0.72 : Math.max(70, 118 / aspect);
     const dist = needH / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
-    const look = portrait ? LOOK_PORTRAIT : LOOK;
-    cam.position.copy(look).addScaledVector(DIR, dist);
-    cam.near = 40; cam.far = 900;
-    cam.lookAt(look);
+    const look = (portrait ? LOOK_PORTRAIT : LOOK).clone();
+    const pos = look.clone().addScaledVector(DIR, dist);
+    home.current = { pos, look, dist };
+    const c = controls.current;
+    if (smooth && c) {
+      gsap.to(cam.position, { x: pos.x, y: pos.y, z: pos.z, duration: 1.2, ease: "power2.inOut", onUpdate: () => c.update() });
+      gsap.to(c.target, { x: look.x, y: look.y, z: look.z, duration: 1.2, ease: "power2.inOut" });
+    } else {
+      cam.position.copy(pos);
+      if (c) c.target.copy(look);
+      cam.lookAt(look);
+    }
+    cam.near = 4; cam.far = 1400;
     cam.updateProjectionMatrix();
-    cam.updateMatrixWorld();
   }, [camera, size.width, size.height]);
-  return null;
+
+  useEffect(() => {
+    // sur mobile, un doigt vertical fait défiler le temps ; l'orbite se fait en glissant horizontalement ou à deux doigts
+    if (window.matchMedia("(pointer: coarse)").matches) gl.domElement.style.touchAction = "pan-y";
+  }, [gl]);
+
+  const moved = useRef(false);
+  useEffect(() => { if (!moved.current) place(false); }, [place]);
+
+  useEffect(() => {
+    cameraApi.recenter = () => place(true);
+    cameraApi.zoom = (f: number) => {
+      const c = controls.current;
+      if (!c) return;
+      moved.current = true;
+      const off = camera.position.clone().sub(c.target);
+      const d = THREE.MathUtils.clamp(off.length() * f, 38, home.current.dist * 1.25);
+      camera.position.copy(c.target).add(off.setLength(d));
+      c.update();
+    };
+    const onWheel = (e: WheelEvent) => { if (e.ctrlKey) { e.preventDefault(); cameraApi.zoom(e.deltaY > 0 ? 1.1 : 0.9); } };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "+" || e.key === "=") cameraApi.zoom(0.85);
+      if (e.key === "-") cameraApi.zoom(1.15);
+      if (e.key === "0") cameraApi.recenter();
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("wheel", onWheel); window.removeEventListener("keydown", onKey); };
+  }, [camera, place]);
+
+  useFrame(() => {
+    const c = controls.current;
+    if (!c) return;
+    // borne la cible au diorama
+    c.target.x = THREE.MathUtils.clamp(c.target.x, WORLD.minX, WORLD.maxX);
+    c.target.z = THREE.MathUtils.clamp(c.target.z, WORLD.minZ, WORLD.maxZ);
+    c.target.y = THREE.MathUtils.clamp(c.target.y, -3, 12);
+  });
+
+  return (
+    <OrbitControls
+      ref={controls}
+      makeDefault
+      enableZoom={false}
+      enableDamping
+      dampingFactor={0.08}
+      rotateSpeed={0.55}
+      panSpeed={0.9}
+      screenSpacePanning={false}
+      minPolarAngle={0.3}
+      maxPolarAngle={1.38}
+      mouseButtons={{ LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN }}
+      touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
+      onStart={() => { moved.current = true; }}
+    />
+  );
 }
 
 /** Projette les ancres des bâtiments en coordonnées écran (pour les cartes HTML). */
@@ -74,13 +144,13 @@ export default function CityCanvas() {
     <Canvas
       shadows
       dpr={low ? [1, 1.25] : [1, 1.75]}
-      camera={{ fov: 22, near: 40, far: 900 }}
+      camera={{ fov: 22, near: 4, far: 1400 }}
       gl={{ antialias: !low, alpha: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.05; gl.shadowMap.type = THREE.PCFSoftShadowMap; gl.setClearColor(0x000000, 0); }}
       style={{ position: "fixed", inset: 0 }}
       aria-label="Ville en 3D qui se construit au fil du temps"
     >
-      <FixedCamera />
+      <Rig />
       <Lighting />
       <Terrain />
       <Pond />
@@ -93,6 +163,7 @@ export default function CityCanvas() {
       <Crowd />
       <Cars />
       <Trace />
+      <Beacons />
       <Projector />
       <CompletionWatcher />
     </Canvas>

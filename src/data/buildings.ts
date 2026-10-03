@@ -6,7 +6,7 @@ import { rng } from "@/engine/math";
 
 export const chapterOne: BuildingDef[] = [
   {
-    id: "jc-leforest", cardLift: 0, cardDx: -30, name: "JC Leforest", chapter: "foundation", category: "judo", archetype: "dojo",
+    id: "jc-leforest", cardLift: 0, cardDx: -75, name: "JC Leforest", chapter: "foundation", category: "judo", archetype: "dojo",
     position: [-23, 0, 4.5], size: [6.6, 5, 3.4], buildStart: 0.008, buildEnd: 0.034, importance: 5, country: "france",
     description: "Le dojo du club formateur. La première pierre de la ville.", connections: ["lycee-gambetta"],
     anchor: [-23, 8.0], sign: "JC LEFOREST", card: { tagline: "Le commencement" },
@@ -110,6 +110,40 @@ export const chapterOne: BuildingDef[] = [
   },
 ];
 
+
+/* ───── Chapitre II — la ville change d'échelle. Seuls noms et rôles viennent du brief ;
+   les textes des panneaux sont à renseigner. ───── */
+const later = (kicker: string): NonNullable<BuildingDef["panel"]> => ({
+  kicker, period: "À renseigner", place: "À renseigner",
+  narration: ["Cette étape du parcours sera racontée ici."], gives: "", tags: [],
+});
+export const chapterTwo: BuildingDef[] = [
+  {
+    id: "judo-france-paris", name: "Judo France Paris", chapter: "formation", category: "coach", archetype: "dojoParis",
+    position: [-6, 0, 17], rotationY: Math.PI, size: [8, 6, 4.8], buildStart: 0.205, buildEnd: 0.226, importance: 4, country: "france",
+    description: "Une véritable activité de coach.", connections: ["puc"], anchor: [-6, 13.2], sign: "JUDO FRANCE PARIS",
+    card: { tagline: "L'activité de coach" }, cardLift: 20, cardDx: -30, panel: later("Une véritable activité de coach"),
+  },
+  {
+    id: "puc", name: "Paris Université Club", chapter: "formation", category: "sport", archetype: "cfa",
+    position: [-21, 0, 18], rotationY: Math.PI, size: [7, 5, 3.8], buildStart: 0.232, buildEnd: 0.25, importance: 3, country: "france",
+    description: "Un nouveau club.", connections: ["jccmm"], anchor: [-21, 14.2], sign: "PUC",
+    card: { tagline: "Un nouveau club" }, cardLift: 14, cardDx: -60, panel: later("De nouveaux clubs"),
+  },
+  {
+    id: "jccmm", name: "JCCMM", chapter: "formation", category: "judo", archetype: "dojo",
+    position: [-35, 0, 4.5], size: [6.6, 5, 3.4], buildStart: 0.255, buildEnd: 0.274, importance: 3, country: "france", tint: "#e3b9a0",
+    description: "Un club de plus dans la ville.", connections: ["grand-dome"], anchor: [-35, 8.0], sign: "JCCMM",
+    card: { tagline: "Un club de plus" }, cardLift: 46, cardDx: -10, panel: later("De nouveaux clubs"),
+  },
+  {
+    id: "grand-dome", name: "Grand Dôme de Villebon", chapter: "formation", category: "federation", archetype: "federation",
+    position: [40, 0, 19.5], rotationY: Math.PI, size: [11, 5.6, 4.4], buildStart: 0.284, buildEnd: 0.312, importance: 4, country: "france",
+    description: "Un équipement à une autre échelle.", connections: [], anchor: [40, 15.7], sign: "GRAND DÔME",
+    card: { tagline: "Une autre échelle" }, cardLift: 10, cardDx: 20, panel: later("Une autre échelle"),
+  },
+];
+
 /* ───── Aperçu de la ville « aujourd'hui » — visible uniquement pendant l'intro / le rewind.
    Ce sont des placeholders de chapitres futurs, construits par le même moteur. ───── */
 const T = (o: Partial<BuildingDef> & Pick<BuildingDef, "id" | "name" | "archetype" | "position" | "size" | "buildStart" | "buildEnd">): BuildingDef => ({
@@ -120,10 +154,10 @@ export const teasers: BuildingDef[] = [
   T({ id: "duqque-hq", name: "DUQQUE HQ", archetype: "tower", position: [44, 0, -4], size: [7, 7, 17], buildStart: 0.55, buildEnd: 0.96, sign: "DUQQUE", tint: "#7747FF" }),
   T({ id: "gdn-2", name: "Dojo — Lisbonne", archetype: "dojo", position: [-12, 0, -8], size: [6.6, 5, 3.4], buildStart: 0.72, buildEnd: 0.8, sign: "DOJO", tint: "#d9a066" }),
   T({ id: "gdn-3", name: "Dojo — Tokyo", archetype: "dojo", position: [5, 0, 25], size: [6.6, 5, 3.4], buildStart: 0.84, buildEnd: 0.9, sign: "DOJO", tint: "#c76f6f" }),
-  T({ id: "gdn-4", name: "Dojo — Prague", archetype: "dojo", position: [38, 0, 25], size: [6.6, 5, 3.4], buildStart: 0.86, buildEnd: 0.92, sign: "DOJO", tint: "#7fa3c7" }),
+  T({ id: "gdn-4", name: "Dojo — Prague", archetype: "dojo", position: [28, 0, 28], size: [6.6, 5, 3.4], buildStart: 0.86, buildEnd: 0.92, sign: "DOJO", tint: "#7fa3c7" }),
   T({ id: "gdn-5", name: "Dojo — Almaty", archetype: "dojo", position: [-30, 0, 22], size: [6.6, 5, 3.4], buildStart: 0.88, buildEnd: 0.94, sign: "DOJO", tint: "#8fbf8a" }),
   T({ id: "rokudan", name: "Rokudan", archetype: "site", position: [-3, 0, 21], size: [7, 6, 6], buildStart: 0.62, buildEnd: 0.9, status: "construction" }),
-  T({ id: "jenyz", name: "Jenyz France", archetype: "site", position: [49, 0, 20], size: [6, 6, 6], buildStart: 0.7, buildEnd: 0.92, status: "construction" }),
+  T({ id: "jenyz", name: "Jenyz France", archetype: "site", position: [49, 0, 27], size: [6, 6, 6], buildStart: 0.7, buildEnd: 0.92, status: "construction" }),
   T({ id: "innovation-lab", name: "Sport Innovation Lab", archetype: "block", position: [12, 0, 23], size: [7, 6, 7], buildStart: 0.6, buildEnd: 0.78, tint: "#6aa4d8", sign: "LAB" }),
 ];
 
@@ -131,7 +165,7 @@ function scatterHouses(): BuildingDef[] {
   const r = rng(77);
   const spots: [number, number][] = [
     [-37, 6], [-36, -4], [-29, -16], [-20, -12], [-5, -22.5], [10, -22.5], [27, -22.5], [38, -14],
-    [-36, 14], [-18, 22], [-12, 27], [20, 27], [29, 29], [46, 11], [-40, 26], [44, 28],
+    [-38, 15], [-14, 28], [-30, 27], [10, 28], [46, 28], [47, 12], [-40, 26], [20, 28],
   ];
   return spots.map(([x, z], i) => {
     const w = 3.4 + r() * 2.2, d = 3 + r() * 1.8, h = 2.4 + r() * 3.2;
@@ -143,5 +177,6 @@ function scatterHouses(): BuildingDef[] {
   });
 }
 
-export const buildings: BuildingDef[] = [...chapterOne, ...teasers, ...scatterHouses()];
+export const story: BuildingDef[] = [...chapterOne, ...chapterTwo];
+export const buildings: BuildingDef[] = [...story, ...teasers, ...scatterHouses()];
 export const buildingById = Object.fromEntries(buildings.map((b) => [b.id, b])) as Record<string, BuildingDef>;

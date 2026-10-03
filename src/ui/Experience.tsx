@@ -3,13 +3,14 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, useS
 import gsap from "gsap";
 import { clock, getState, setState, useUI } from "@/engine/timeline";
 import { PROTOTYPE_CAP, chapterAt } from "@/data/chapters";
-import { narration, introLines, chapterTwoTeaser } from "@/data/narration";
-import { buildings, chapterOne } from "@/data/buildings";
+import { narration, introLines, nextTeaser } from "@/data/narration";
+import { buildings, story } from "@/data/buildings";
 import { buildT } from "@/engine/construction";
 import { trainSpeed } from "@/data/infrastructure";
 import { sky } from "@/engine/daynight";
 import { clamp } from "@/engine/math";
 import { cityAudio } from "@/audio/engine";
+import { cameraApi } from "@/engine/cameraApi";
 import { speak, stop as stopSpeech } from "@/audio/narrator";
 import { Cards, Panel } from "./Cards";
 import { TextStory } from "./TextStory";
@@ -166,6 +167,11 @@ function Hud() {
         <button aria-pressed={subtitles} onClick={() => setState({ subtitles: !subtitles })}>SOUS-TITRES</button>
         <button aria-pressed={textMode} onClick={() => setState({ textMode: true })}>TEXTE</button>
       </nav>
+      <nav className="camera" aria-label="Caméra">
+        <button onClick={() => cameraApi.zoom(0.8)} aria-label="Zoom avant">+</button>
+        <button onClick={() => cameraApi.zoom(1.25)} aria-label="Zoom arrière">−</button>
+        <button onClick={() => cameraApi.recenter()} aria-label="Recentrer la vue">⌖</button>
+      </nav>
     </header>
   );
 }
@@ -244,10 +250,9 @@ function EndOverlay() {
   const open = useUI((s) => s.openId);
   return (
     <aside className={`end ${ended && !open ? "on" : ""}`} aria-hidden={!ended}>
-      <h2>CHAPITRE II</h2>
-      {chapterTwoTeaser.map((t) => <p key={t}>{t}</p>)}
-      <small>— à suivre —</small>
-      <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} tabIndex={ended ? 0 : -1}>↑ REMONTER LE TEMPS</button>
+      <h2>CHAPITRE III</h2>
+      {nextTeaser.map((t) => <p key={t}>{t}</p>)}
+            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} tabIndex={ended ? 0 : -1}>↑ REMONTER LE TEMPS</button>
     </aside>
   );
 }
@@ -265,7 +270,7 @@ function ProgressRail() {
   return (
     <div className={`rail ${phase === "scroll" ? "on" : ""}`} aria-hidden>
       <div className="track"><div ref={fill} className="fill" /></div>
-      {chapterOne.filter((b) => b.card).map((b) => (
+      {story.filter((b) => b.card).map((b) => (
         <i key={b.id} style={{ top: `${(b.buildEnd / PROTOTYPE_CAP) * 100}%` }} title={b.name} />
       ))}
     </div>

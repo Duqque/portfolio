@@ -1,5 +1,5 @@
 "use client";
-import { chapterOne } from "@/data/buildings";
+import { story } from "@/data/buildings";
 import { narration } from "@/data/narration";
 import { setState } from "@/engine/timeline";
 
@@ -12,9 +12,9 @@ export function TextStory() {
         <p>A LIFE UNDER CONSTRUCTION</p>
         <button onClick={() => { location.search ? (location.href = location.pathname) : setState({ textMode: false }); }}>Retour à la ville 3D</button>
       </header>
-      <h2>Chapitre I — Fondation</h2>
+      <h2>Chapitre I — Fondation · Chapitre II — Changement d'échelle</h2>
       <p className="lead">« Tout commence quelque part. »</p>
-      {chapterOne.filter((b) => b.panel).map((b) => (
+      {story.filter((b) => b.panel).map((b) => (
         <section key={b.id}>
           <small>{b.panel!.kicker} · {b.panel!.period} · {b.panel!.place}</small>
           <h3>{b.name}</h3>

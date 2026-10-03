@@ -1,7 +1,7 @@
 # DUQUENNE CITY — *A life under construction*
 
-Une ville 3D vivante qui raconte une vie. La caméra est **fixe** ; le scroll n'avance que le **temps** du monde.
-Prototype vertical : **Chapitre I — Fondation** (JC Leforest → Lycée Gambetta → Gare → MJM/Webstart → CFA Omnisport → FFJudo → Dojo de Paris).
+Une ville 3D vivante qui raconte une vie. La **caméra est libre** (glisser = orbite, clic droit/deux doigts = déplacer, boutons +/−/⌖ ou Ctrl+molette = zoom) ; la molette/le scroll n'avance que le **temps** du monde.
+Prototype vertical : **Chapitre I — Fondation** puis **Chapitre II — Changement d'échelle** (4 lieux, textes à renseigner) (JC Leforest → Lycée Gambetta → Gare → MJM/Webstart → CFA Omnisport → FFJudo → Dojo de Paris).
 
 ```bash
 npm install

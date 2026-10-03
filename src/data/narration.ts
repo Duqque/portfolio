@@ -13,6 +13,10 @@ export const narration: NarrationBeat[] = [
   { at: 0.178, until: 0.188, text: "Et le dojo de Paris a marqué le passage vers une nouvelle vie.", speak: true },
   { at: 0.1885, until: 0.1925, text: "Les fondations étaient posées.", big: true, speak: true },
   { at: 0.1925, until: 0.1985, text: "Je ne savais pas encore quelle forme prendrait la suite. Mais les premières pierres étaient posées. Le judo m'avait appris à avancer. Le design m'avait appris à créer. Et la formation de coach allait m'apprendre à construire pour les autres.", big: true, speak: true },
+  { at: 0.2, until: 0.222, text: "La ville va maintenant commencer à changer d'échelle.", big: true, speak: true },
+  { at: 0.224, until: 0.256, text: "Le premier petit dojo laisse place à une véritable activité de coach.", speak: true },
+  { at: 0.258, until: 0.296, text: "Les routes se multiplient. De nouveaux clubs sont construits.", speak: true },
+  { at: 0.3, until: 0.338, text: "Et surtout : la ville commence à devenir professionnelle.", big: true, speak: true },
 ];
 
 export const introLines = {
@@ -24,6 +28,11 @@ export const introLines = {
   void2: "Tout commence par une première fondation.",
 };
 
+export const nextTeaser = [
+  "Les bâtiments vont devenir plus importants.",
+  "De nouveaux athlètes vont apparaître.",
+  "THE CONSTRUCTION CONTINUES.",
+];
 export const chapterTwoTeaser = [
   "La ville va maintenant commencer à changer d'échelle.",
   "Le premier petit dojo va laisser place à une véritable activité de coach.",

@@ -7,6 +7,8 @@ import { clock, getState } from "@/engine/timeline";
 import { sky } from "@/engine/daynight";
 import { rng, smoothstep } from "@/engine/math";
 import { glowSprite } from "./textures";
+import { buildings } from "@/data/buildings";
+import { buildT } from "@/engine/construction";
 
 const W = WORLD.maxX - WORLD.minX, D = WORLD.maxZ - WORLD.minZ;
 const CX = (WORLD.maxX + WORLD.minX) / 2, CZ = (WORLD.maxZ + WORLD.minZ) / 2;
@@ -19,7 +21,7 @@ export function Terrain() {
     const pos = g.attributes.position;
     const col = new Float32Array(pos.count * 3);
     const r = rng(8);
-    const base = new THREE.Color("#8eaa6b"), alt = new THREE.Color("#a3b87a"), dry = new THREE.Color("#b3b27c");
+    const base = new THREE.Color("#627a4a"), alt = new THREE.Color("#73895a"), dry = new THREE.Color("#7d7c58");
     const c = new THREE.Color();
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i);
@@ -205,6 +207,42 @@ export function Lamps() {
         <bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry>
         <pointsMaterial map={sprite} color="#ffcf85" size={44} sizeAttenuation={false} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0} />
       </points>
+    </group>
+  );
+}
+
+/** Pastilles bleues pulsantes au pied de chaque lieu terminé (repère interactif, façon carte tactique). */
+export function Beacons() {
+  const list = useMemo(() => buildings.filter((b) => b.card), []);
+  const groups = useRef<(THREE.Group | null)[]>([]);
+  const rings = useRef<(THREE.Mesh | null)[]>([]);
+  useFrame(() => {
+    list.forEach((b, i) => {
+      const g = groups.current[i], r = rings.current[i];
+      if (!g || !r) return;
+      const k = smoothstep(0.92, 1, buildT(b, clock.progress));
+      g.visible = k > 0.01;
+      g.scale.setScalar(k);
+      const t = (clock.time * 0.5 + i * 0.37) % 1;
+      r.scale.setScalar(1 + t * 0.7);
+      (r.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.55;
+    });
+  });
+  return (
+    <group>
+      {list.map((b, i) => {
+        const rad = Math.max(b.size[0], b.size[1]) / 2 + 1.4;
+        return (
+          <group key={b.id} ref={(el) => { groups.current[i] = el; }} position={[b.position[0], 0.3, b.position[2]]} visible={false}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} renderOrder={3}>
+              <circleGeometry args={[rad, 36]} /><meshBasicMaterial color="#3aa0e8" transparent opacity={0.22} depthWrite={false} toneMapped={false} />
+            </mesh>
+            <mesh ref={(el) => { rings.current[i] = el; }} rotation={[-Math.PI / 2, 0, 0]} renderOrder={3}>
+              <ringGeometry args={[rad - 0.18, rad, 48]} /><meshBasicMaterial color="#6cc0ff" transparent opacity={0.5} depthWrite={false} toneMapped={false} />
+            </mesh>
+          </group>
+        );
+      })}
     </group>
   );
 }

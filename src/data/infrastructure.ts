@@ -24,14 +24,18 @@ export const roads: RoadDef[] = [
   { id: "street-e", points: [[36, 10], [46, 8], [52, 4]], width: 3, start: 0.186, end: 0.198 },
   /* aperçu du futur */
   { id: "avenue-south", points: [[1, 10], [1, 31]], width: 3, start: 0.3, end: 0.4 },
-  { id: "avenue-west", points: [[-31, 10], [-45, 10]], width: 3, start: 0.32, end: 0.4 },
+  { id: "avenue-west", points: [[-31, 10], [-40, 10]], width: 3, start: 0.25, end: 0.272 },
+  { id: "spur-jccmm", points: [[-35, 8.0], [-35, 10]], width: 1.2, start: 0.27, end: 0.274 },
+  { id: "spur-jfp", points: [[-6, 13.2], [-6, 10]], width: 1.2, start: 0.222, end: 0.226 },
+  { id: "spur-puc", points: [[-21, 14.2], [-21, 10]], width: 1.2, start: 0.246, end: 0.25 },
+  { id: "spur-dome", points: [[40, 15.7], [40, 10]], width: 1.2, start: 0.308, end: 0.312 },
   { id: "avenue-hq", points: [[46, 8], [44, 8], [44, -1]], width: 2.6, start: 0.5, end: 0.6 },
   { id: "ring-south", points: [[-30, 22], [-3, 22], [12, 22], [38, 22]], width: 2.4, start: 0.6, end: 0.8 },
   { id: "north-link", points: [[-12, 10], [-12, -6]], width: 2, start: 0.7, end: 0.78 },
 ];
 
 /** Point le plus à l'est de la rue principale déjà construit (pour les voitures et lampadaires). */
-const mainStreet = roads.filter((r) => ["street-a", "street-b", "street-c", "street-d", "street-e"].includes(r.id));
+const mainStreet = roads.filter((r) => ["street-a", "street-b", "street-c", "street-d", "street-e", "avenue-west"].includes(r.id));
 export function streetBuiltX(p: number): number {
   let x = -31;
   for (const r of mainStreet) {
@@ -58,6 +62,11 @@ export const traceSegments: TraceSegmentDef[] = [
   { id: "cfa-dojo", points: [[22.5, 7.2], [22.5, 9.6], [32, 9.6], [32, 8.5]], start: 0.164, end: 0.178 },
   { id: "ff-dojo", points: [[22, 13.7], [22, 10.6], [31.4, 10.6], [31.4, 9.6]], start: 0.166, end: 0.178 },
   { id: "exit", points: [[32, 8.5], [32, 9.6], [38, 9.6], [45, 6.5, 0.6], [51, -8, 5], [56, -26, 14], [60, -44, 24]], start: 0.188, end: 0.2 },
+  /* chapitre II */
+  { id: "dojo-jfp", points: [[32, 10.6], [-6, 10.6], [-6, 13.2]], start: 0.206, end: 0.226 },
+  { id: "jfp-puc", points: [[-6, 13.2], [-6, 11.2], [-21, 11.2], [-21, 14.2]], start: 0.232, end: 0.25 },
+  { id: "puc-jccmm", points: [[-21, 14.2], [-21, 11.2], [-35, 11.2], [-35, 8.0]], start: 0.256, end: 0.274 },
+  { id: "jccmm-dome", points: [[-35, 8.0], [-35, 11.8], [40, 11.8], [40, 15.7]], start: 0.282, end: 0.312 },
   /* réseau futur (Global Dojo Network) — mêmes mécaniques, autre teinte */
   { id: "net-1", kind: "network", points: [[-23, 8, 0.4], [-18, 4, 7], [-12, -4, 0.4]], start: 0.8, end: 0.84 },
   { id: "net-2", kind: "network", points: [[-23, 8, 0.4], [-9, 18, 9], [5, 22, 0.4]], start: 0.86, end: 0.9 },
@@ -66,7 +75,7 @@ export const traceSegments: TraceSegmentDef[] = [
 ];
 
 /** Nœuds lumineux : apparaissent quand le bâtiment est terminé. */
-export const traceNodes = ["jc-leforest", "lycee-gambetta", "gare", "paris", "mjm-webstart", "cfa-omnisport", "ffjudo", "dojo-paris"];
+export const traceNodes = ["jc-leforest", "lycee-gambetta", "gare", "paris", "mjm-webstart", "cfa-omnisport", "ffjudo", "dojo-paris", "judo-france-paris", "puc", "jccmm", "grand-dome"];
 
 /* ───────── Trains ───────── */
 export const trains: TrainSchedule[] = [

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { keyframes, lerp, smoothstep, clamp } from "./math";
 
 /** progress global → nombre de journées écoulées (+ offset matin). Le chapitre I finit au crépuscule/nuit. */
-const dayKeys: [number, number][] = [[0, 0.08], [0.2, 2.8], [1, 3.55]];
+const dayKeys: [number, number][] = [[0, 0.08], [0.2, 2.8], [0.34, 4.55], [1, 5.3]];
 export const phaseOf = (p: number) => keyframes(dayKeys, p);
 
 const C = (h: string) => new THREE.Color(h);
@@ -53,7 +53,7 @@ export function updateSky(p: number) {
   const e = Math.sin(ang);
   sky.sunDir.set(-Math.cos(ang) * 62, Math.max(e, 0.04) * 56 + 3, -24);
   sky.sunColor.copy(warm).lerp(white, smoothstep(0.05, 0.5, e));
-  sky.sunInt = u <= 0.64 ? 3.0 * smoothstep(0.0, 0.3, e) : 0;
+  sky.sunInt = u <= 0.64 ? 2.5 * smoothstep(0.0, 0.3, e) : 0;
 
   const am = Math.PI * clamp((u - 0.64) / 0.36, 0, 1);
   const em = Math.sin(am);
@@ -62,5 +62,5 @@ export function updateSky(p: number) {
 
   sky.hemiSky.copy(sky.top).lerp(new THREE.Color("#ffffff"), 0.35 * sky.day).lerp(NIGHT_SKY, 0.8 * sky.night);
   sky.hemiGround.set("#6b6a5a").lerp(new THREE.Color("#3a4272"), sky.night);
-  sky.hemiInt = lerp(0.95, 0.8, sky.night);
+  sky.hemiInt = lerp(0.7, 0.8, sky.night);
 }

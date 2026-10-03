@@ -5,6 +5,7 @@ import { setState, useUI } from "@/engine/timeline";
 import { speak } from "@/audio/narrator";
 
 const withCard = buildings.filter((b) => b.card);
+const ICON: Record<string, string> = { judo: "柔", etudes: "▤", transport: "⇄", design: "✦", sport: "◎", federation: "⚑", coach: "★", business: "▣", innovation: "✧", infra: "◆" };
 
 /** Petites cartes HTML, ancrées au bâtiment, qui apparaissent à 100 % de construction — jamais ouvertes automatiquement. */
 export function Cards() {
@@ -24,9 +25,9 @@ export function Cards() {
               onClick={() => setState({ openId: b.id })}
               aria-label={`${b.name} — ${b.card && b.card.tagline}. Découvrir`}
             >
+              <i aria-hidden>{ICON[b.category] ?? "◆"}</i>
               <b>{b.name.toUpperCase()}</b>
-              <code>{b.card && b.card.tagline}</code>
-              <span>Découvrir →</span>
+              <em>{b.card && b.card.tagline} →</em>
             </button>
           </div>
         );
@@ -55,7 +56,7 @@ export function Panel() {
             <div><dt>Univers</dt><dd>{def.category}</dd></div>
           </dl>
           {c.narration.map((t) => <p key={t}>{t}</p>)}
-          <p className="gives">{c.gives}</p>
+          {c.gives && <p className="gives">{c.gives}</p>}
           <ul>{c.tags.map((t) => <li key={t}>{t}</li>)}</ul>
           {c.photos?.map((src) => <img key={src} src={src} alt="" />)}
           <button className="listen" onClick={() => speak(c.narration.join(" "), def.audio)}>▶ ÉCOUTER</button>
